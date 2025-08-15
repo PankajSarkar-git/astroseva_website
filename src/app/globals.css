@@ -37,6 +37,68 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Surface */
+  --color-surface-background: #ffffff;
+  --color-surface-primary-surface: #ec504a;
+  --color-surface-secondary-surface: #f8f7f1;
+  --color-surface-muted-surface: #d9d9d9;
+  --color-surface-lighter-gray: #f3f3f3;
+  --color-surface-border: #e3e3e3;
+  --color-surface-highlight: #f0df1f;
+  --color-surface-dark-pink: #4f1653ff;
+  --color-surface-overlay: rgba(0, 0, 0, 0.3);
+
+  /* Text */
+  --color-text-primary: #000000;
+  --color-text-secondary: #494949;
+  --color-text-tertiary: #ec504a;
+  --color-text-muted: #686868;
+  --color-text-light: #ffffff;
+  --color-text-subdued: #575757;
+  --color-text-faint: #a8a8a8;
+
+  /* Button */
+  --color-button-primary: #ec504a;
+  --color-button-secondary: #fa476b;
+  --color-button-success: #19a329;
+  --color-button-warning: #ffd700;
+  --color-button-danger: #dc3545;
+  --color-button-info: #00c9f0;
+  --color-button-muted: #686868;
+
+  /* Card */
+  --color-card-default: #f8f7f1;
+  --color-card-elevated: #faf7ed;
+  --color-card-outlined: #b5b5b5;
+  --color-card-shadow: #d9d9d9;
+  --color-card-accent: #a51255;
+  --color-card-yellow: #ffd700;
+
+  /* Shadow */
+  --color-shadow-dark: #1a1a2e;
+  --color-shadow-mid: #575757;
+  --color-shadow-light: #b5b5b5;
+
+  /* Status */
+  --color-status-success-base: #28a745;
+  --color-status-success-light: #d4edda;
+  --color-status-error-base: #dc3545;
+  --color-status-error-light: #f8d7da;
+  --color-status-warning-base: #ffc107;
+  --color-status-warning-light: #fff3cd;
+  --color-status-info-dark: #00c9f0;
+  --color-status-info-light: #c5f5ffff;
+
+  /* Misc */
+  --color-misc-gold: #d4af37;
+  --color-misc-brown: #796a44;
+
+  /* Border */
+  --color-border-primary: #e3e3e3;
+  --color-border-secondary: #ec504a;
+  --color-border-light: #ffffff;
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
