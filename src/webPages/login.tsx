@@ -5,66 +5,63 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CustomInputV1 from "@/components/CustomInputV1";
 import { Button } from "@/components/ui/button";
-import { themeColors } from "@/constant/colors";
-import { colors } from "@/constant/colors";
+import { themeColors, colors } from "@/constant/colors";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/imgs/logo.png";
+import { useAppDispatch } from "@/hook/redux-hook";
+import { loginUserPassword } from "@/store/reducer/auth/action";
 
 const LoginPage = () => {
   const router = useRouter();
-  const [formData, setFormData] = useState<{ phone: string; password: string }>(
-    { phone: "", password: "" }
-  );
-  const [errors, setErrors] = useState<{ phone: string; password: string }>({
-    phone: "",
-    password: "",
-  });
+  const dispatch = useAppDispatch();
+
+  const [formData, setFormData] = useState({ phone: "", password: "" });
+  const [errors, setErrors] = useState({ phone: "", password: "" });
   const [loading, setLoading] = useState(false);
 
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^[6-9]\d{9}$/;
-    return phoneRegex.test(phone);
-  };
+  const validatePhone = (phone: string) =>
+    /^[6-9]\d{9}$/.test(phone.trim());
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const validateForm = () => {
-    const newErrors: { phone: string; password: string } = {
-      phone: "",
-      password: "",
-    };
+    const newErrors = { phone: "", password: "" };
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!validatePhone(formData.phone.trim())) {
+    } else if (!validatePhone(formData.phone)) {
       newErrors.phone = "Please enter a valid 10-digit phone number";
     }
 
-    if (!formData.password) {
+    if (!formData.password.trim()) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters long";
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.values(newErrors).every((err) => err === "");
   };
 
   const handleLogin = async () => {
-    if (!validateForm()) return;
+    if (!validateForm() || loading) return;
 
     try {
       setLoading(true);
-      // Replace with actual login API call
-      await new Promise((res) => setTimeout(res, 1000));
+      const payload = {
+        mobile: formData.phone.trim(),
+        password: formData.password,
+      };
+      const response = await dispatch(loginUserPassword(payload)).unwrap();
 
-      // Simulate login success
-      router.push("/dashboard");
+      if (response.success) {
+        router.push("/dashboard");
+      }
     } catch (err) {
-      console.error("Login failed", err);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -75,6 +72,7 @@ const LoginPage = () => {
       className="flex flex-col min-h-screen"
       style={{ backgroundColor: themeColors.surface.background }}
     >
+      {/* Logo */}
       <div className="flex flex-col items-center mt-10">
         <Image
           src={logo}
@@ -91,6 +89,7 @@ const LoginPage = () => {
         </h1>
       </div>
 
+      {/* Form */}
       <div className="max-w-md mx-auto w-full px-6 mt-10">
         <CustomInputV1
           preText="+91"
@@ -120,7 +119,7 @@ const LoginPage = () => {
         <Button
           onClick={handleLogin}
           disabled={loading}
-          className="w-full mt-6"
+          className="w-full mt-6 cursor-pointer"
           style={{
             backgroundColor: themeColors.button.primary,
             color: colors.primaryText,
@@ -136,13 +135,14 @@ const LoginPage = () => {
           )}
         </Button>
 
+        {/* Register link */}
         <div className="flex justify-center mt-6">
           <p className="text-sm" style={{ color: themeColors.text.secondary }}>
             Don&apos;t have an account?
           </p>
           <button
             onClick={() => router.push("/register")}
-            className="ml-1 font-bold text-sm"
+            className="ml-1 font-bold text-sm cursor-pointer"
             style={{ color: themeColors.text.primary }}
           >
             Register
