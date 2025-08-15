@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReduxProvider } from "@/lib/providers/redux-provider";
 import ProtectedRoute from "@/lib/providers/ProtectedRoute";
 import Navbar from "@/components/common/navbar";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
           <ProtectedRoute>
             <div className="h-full min-h-screen w-full relative">
               {children}
+              <Toaster />
             </div>
           </ProtectedRoute>
         </ReduxProvider>

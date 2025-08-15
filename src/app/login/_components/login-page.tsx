@@ -55,9 +55,9 @@ const LoginPage = () => {
         password: formData.password,
       };
       const response = await dispatch(loginUserPassword(payload)).unwrap();
-
+      console.log(response, "----response");
       if (response.success) {
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (err) {
       console.error("Login error:", err);
