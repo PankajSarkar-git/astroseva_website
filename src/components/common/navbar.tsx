@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 // Mock user data
 const userData = {
@@ -34,6 +35,7 @@ const userData = {
 const Navbar = () => {
   const [activeItem, setActiveItem] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   const navItems = [
     { id: "home", label: "Home", icon: Home, href: "/" },
@@ -63,6 +65,7 @@ const Navbar = () => {
     setActiveItem(itemId);
     setIsMobileMenuOpen(false);
     console.log(`Navigating to: ${itemId}`);
+    router.push(itemId);
   };
 
   const handleProfileMenuClick = (itemId) => {
