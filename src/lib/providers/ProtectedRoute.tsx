@@ -1,7 +1,7 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
+import { RootState } from "@/lib/store/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import FullScreenLoader from "@/components/full-screen-loader";

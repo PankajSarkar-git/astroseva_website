@@ -1,6 +1,6 @@
 export type RootStackParamList = {
   Home: undefined; // if no params
-  Profile: {userId: string}; // example with params
+  Profile: { userId: string }; // example with params
 };
 
 //users interface
@@ -18,14 +18,14 @@ export interface UserPersonalDetail {
 export interface UserDetail {
   id: string;
   name: string;
-  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  gender: "MALE" | "FEMALE" | "OTHER";
   birthDate: string;
   birthTime: string;
   birthPlace: string;
   latitude: number;
   longitude: number;
   mobile: string;
-  role: 'USER' | 'ADMIN' | string;
+  role: "USER" | "ADMIN" | string;
   walletBalance: number;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
@@ -46,8 +46,6 @@ export interface Astrologers {
   pricePerMinuteVoice: number;
   user: UserDetail;
 }
-
-import {ImageSourcePropType} from 'react-native';
 
 export interface Review {
   id: number;
@@ -157,7 +155,7 @@ export interface OtherUserType {
   latitude: number;
   longitude: number;
   mobile: string;
-  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  gender: "MALE" | "FEMALE" | "OTHER";
   imageUri?: string;
 }
 
@@ -175,8 +173,8 @@ export interface CallSession {
   };
   startedAt: string;
   endedAt: string | null;
-  status: 'ACTIVE' | 'ENDED';
-  sessionType: 'VOICE' | 'VIDEO';
+  status: "ACTIVE" | "ENDED";
+  sessionType: "VOICE" | "VIDEO";
   totalMinutes: number;
   totalCost: number;
   agoraChannelName: string;
@@ -195,7 +193,7 @@ export interface SessionState {
   countRefresh: boolean;
   sessionRequest: {
     userId: string;
-    type: 'AUDIO' | 'VIDEO' | 'CHAT';
+    type: "AUDIO" | "VIDEO" | "CHAT";
   } | null;
 }
 
@@ -204,7 +202,7 @@ export interface Message {
   receiverId: string;
   sessionId: string;
   message: string;
-  type: 'TEXT' | 'IMAGE';
+  type: "TEXT" | "IMAGE";
   timestamp: Date;
 }
 
@@ -212,7 +210,7 @@ export interface ChatSession {
   id: string;
   startedAt: Date;
   endedAt: Date | null;
-  status: 'ACTIVE' | 'ENDED';
+  status: "ACTIVE" | "ENDED";
   totalCost: number;
   totalMinutes: number;
   astrologer: UserDetail;
@@ -224,7 +222,7 @@ export interface ChatSession {
 export interface Transaction {
   id: string;
   amount: number;
-  type: 'DEBIT' | 'CREDIT';
+  type: "DEBIT" | "CREDIT";
   description: string;
   timestamp: string; // ISO date string
 }

@@ -1,7 +1,13 @@
+import PageWithNav from "@/components/common/page-with-nav";
 import React from "react";
+import Astrologers from "./_components/astrologers";
 
-function Astrologer() {
-  return <div>Astrologer</div>;
+function AstrologerPage() {
+  return (
+    <PageWithNav>
+      <Astrologers />
+    </PageWithNav>
+  );
 }
 
-export default Astrologer;
+export default AstrologerPage;
