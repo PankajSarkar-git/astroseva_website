@@ -1,66 +1,59 @@
-import {useEffect, useRef} from 'react';
-import {AppState, AppStateStatus} from 'react-native';
-import {useWebSocket} from './use-socket-new';
+// src/hooks/use-session-events.ts
+
+import { useRef, useCallback } from "react";
+import { useAppDispatch } from "./redux-hook";
+import { useUserRole } from "./use-role";
+import { decodeMessageBody } from "../utils/utils";
+
 import {
   setActiveSession,
   setCallSession,
   setSession,
   toggleCountRefresh,
-} from '../store/reducer/session';
-import {useAppDispatch, useAppSelector} from './redux-hook';
-import {decodeMessageBody} from '../utils/utils';
-import {useUserRole} from './use-role';
-import Toast from 'react-native-toast-message';
+} from "../store/reducer/session";
 import {
   setOnlineAstrologer,
   setOnlineAstrologerDetails,
-} from '../store/reducer/astrologers';
-import {setBalance} from '../store/reducer/auth';
-import {getTransactionHistory} from '../store/reducer/payment';
+} from "../store/reducer/astrologers";
+import { setBalance } from "../store/reducer/auth";
+import { getTransactionHistory } from "../store/reducer/payment";
+import { showToast } from "@/components/common/toast";
+import { WebSocket } from "../services/socket-service-new";
 
-export const useSessionEvents = (
-  userId: string = '',
-  isAuthenticated: boolean = false,
-  isConnected: boolean = false,
-) => {
-  const {subscribe, unsubscribe} = useWebSocket(userId);
+export const useSessionEvents = (userId: string = "") => {
   const dispatch = useAppDispatch();
   const role = useUserRole();
   const subscriptionsRef = useRef<string[]>([]);
 
-  const getTransactionDetails = async () => {
+  const getTransactionDetails = useCallback(async () => {
     try {
       const payload = await dispatch(
-        getTransactionHistory({userId: userId, query: `?page=1`}),
+        getTransactionHistory({ userId: userId, query: `?page=1` })
       ).unwrap();
 
       if (payload.success) {
-        dispatch(setBalance({balance: payload?.wallet?.balance ?? 0}));
+        dispatch(setBalance({ balance: payload?.wallet?.balance ?? 0 }));
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed to get transactions',
-        });
+        showToast.error("Failed to get transactions");
       }
     } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to get transactions',
-      });
+      showToast.error("Failed to get transactions");
     }
-  };
+  }, [dispatch, userId]);
 
-  const subscribeAll = () => {
-    if (!isAuthenticated || !isConnected || !userId) return;
+  const subscribeToSessionEvents = useCallback(() => {
+    if (!userId) return;
+
+    const ws = WebSocket.get();
 
     const queueDest = `/topic/queue/${userId}`;
     const requestDest = `/topic/chat/${userId}/chatId`;
     const callSessionDest = `/topic/call/${userId}/session`;
     const onlineAstroDest = `/topic/online/astrologer`;
     const activeSessionDest = `/topic/session/${userId}`;
-    const onlineAstrologerDest = '/topic/online/astrologer/list';
+    const onlineAstrologerDest = "/topic/online/astrologer/list";
 
-    unsubscribeAll();
+    unsubscribeFromSessionEvents();
 
     subscriptionsRef.current = [
       queueDest,
@@ -71,104 +64,80 @@ export const useSessionEvents = (
       onlineAstrologerDest,
     ];
 
-    // if (role === 'ASTROLOGER') {
-    //   subscriptionsRef.current.push(activeSessionDest);
-    // }
-
-    subscribe(queueDest, msg => {
+    ws.subscribe(queueDest, (msg) => {
       try {
         const res = JSON.parse(decodeMessageBody(msg));
         dispatch(toggleCountRefresh());
-        Toast.show({
-          type: 'success',
-          text1: 'Session',
-          text2: res.msg,
-        });
+        showToast.success(res.msg);
       } catch (err) {
-        console.log('Failed to parse queue message:', err);
+        console.log("Failed to parse queue message:", err);
       }
     });
 
-    subscribe(callSessionDest, msg => {
+    ws.subscribe(callSessionDest, (msg) => {
       try {
         const sessionData = JSON.parse(decodeMessageBody(msg));
         dispatch(setCallSession(sessionData));
         getTransactionDetails();
       } catch (err) {
-        console.log('Session details parse error:', err);
+        console.log("Session details parse error:", err);
       }
     });
 
-    subscribe(requestDest, msg => {
+    ws.subscribe(requestDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
         dispatch(setActiveSession(data));
         dispatch(setSession(data));
         getTransactionDetails();
-        Toast.show({
-          type: 'success',
-          text1: role === 'USER' ? 'Request Accepted' : 'Request Accepted',
-          text2:
-            role === 'USER'
-              ? 'Request accepted by the astrologer'
-              : 'Session will start soon',
-        });
+        showToast.info(
+          role === "USER"
+            ? "Request accepted by the astrologer"
+            : "Session will start soon"
+        );
       } catch (err) {
-        console.log('Failed to parse chat id:', err);
+        console.log("Failed to parse chat id:", err);
       }
     });
 
-    subscribe(onlineAstroDest, msg => {
+    ws.subscribe(onlineAstroDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
-        console.log('Online astrologer---------------------------:', data);
-
         dispatch(setOnlineAstrologer(data));
       } catch (err) {
-        console.log('Failed to parse online astrologer list:', err);
+        console.log("Failed to parse online astrologer list:", err);
       }
     });
 
-    subscribe(onlineAstrologerDest, msg => {
+    ws.subscribe(onlineAstrologerDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
-        console.log(
-          'Online astrologer full details---------------------------:',
-          data,
-        );
-
         dispatch(setOnlineAstrologerDetails(data));
       } catch (err) {
-        console.log('Failed to parse online astrologer list:', err);
+        console.log("Failed to parse online astrologer details:", err);
       }
     });
 
-    subscribe(activeSessionDest, msg => {
+    ws.subscribe(activeSessionDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
-
-        console.log('Active session update---------------------------:', data);
+        console.log("Active session update:", data);
       } catch (err) {
-        console.log('Failed to parse active session data:', err);
+        console.log("Failed to parse active session data:", err);
       }
     });
-  };
+  }, [dispatch, getTransactionDetails, role, userId]);
 
-  const unsubscribeAll = () => {
-    subscriptionsRef.current.forEach(dest => {
-      unsubscribe(dest);
+  const unsubscribeFromSessionEvents = useCallback(() => {
+    const ws = WebSocket.get();
+    subscriptionsRef.current.forEach((dest) => {
+      ws.unsubscribe(dest);
     });
     subscriptionsRef.current = [];
+  }, []);
+
+  return {
+    subscribeToSessionEvents,
+    unsubscribeFromSessionEvents,
   };
-
-  useEffect(() => {
-    if (isAuthenticated && isConnected && userId) {
-      subscribeAll();
-    }
-
-    return () => {
-      console.log('[useSessionEvents] Cleaning up...');
-      unsubscribeAll();
-    };
-  }, [userId, isAuthenticated, isConnected, role]);
 };

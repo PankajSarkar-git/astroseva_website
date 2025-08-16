@@ -1,5 +1,5 @@
-import {Client, IMessage, StompSubscription} from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { Client, IMessage, StompSubscription } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 interface PendingSubscription {
   destination: string;
@@ -46,7 +46,7 @@ export class WebSocketService {
 
     this.client = new Client({
       webSocketFactory: () => new SockJS(this.url),
-      connectHeaders: {'user-id': this.userId},
+      connectHeaders: { "user-id": this.userId },
       debug: (msg: string) => {
         // console.log(`[STOMP Debug] ${msg}`); // Uncomment for STOMP.js debug logs
       },
@@ -56,8 +56,8 @@ export class WebSocketService {
       connectionTimeout: 10000, // Timeout for the initial WebSocket connection
     });
 
-    this.client.onConnect = frame => {
-      console.log('[WebSocketService] Connected successfully!');
+    this.client.onConnect = (frame) => {
+      console.log("[WebSocketService] Connected successfully!");
       this._isConnecting = false; // Explicit connection attempt is now complete
       this.internalReconnectAttempts = 0; // Reset reconnection attempts on success
       this.shouldReconnect = true; // Ensure reconnection is allowed for future disconnects
@@ -70,13 +70,13 @@ export class WebSocketService {
       }
 
       // Notify all registered onConnect callbacks
-      this.onConnectCallbacks.forEach(callback => {
+      this.onConnectCallbacks.forEach((callback) => {
         try {
           callback();
         } catch (error) {
           console.error(
-            '[WebSocketService] Error in onConnect callback:',
-            error,
+            "[WebSocketService] Error in onConnect callback:",
+            error
           );
         }
       });
@@ -85,29 +85,29 @@ export class WebSocketService {
       this.resubscribeAll();
     };
 
-    this.client.onDisconnect = frame => {
-      console.log('[WebSocketService] Disconnected');
+    this.client.onDisconnect = (frame) => {
+      console.log("[WebSocketService] Disconnected");
       this._isConnecting = false; // Explicit connection attempt is no longer active
 
       // Notify all registered onDisconnect callbacks
-      this.onDisconnectCallbacks.forEach(callback => {
+      this.onDisconnectCallbacks.forEach((callback) => {
         try {
           callback();
         } catch (error) {
           console.error(
-            '[WebSocketService] Error in onDisconnect callback:',
-            error,
+            "[WebSocketService] Error in onDisconnect callback:",
+            error
           );
         }
       });
 
       // Clear current active subscriptions and move them to pending for re-establishment
       this.subscriptions = [];
-      this.activeSubscriptions.forEach(sub => {
+      this.activeSubscriptions.forEach((sub) => {
         // Only add to pending if not already there to prevent duplicates
         if (
           !this.pendingSubscriptions.some(
-            p => p.destination === sub.destination,
+            (p) => p.destination === sub.destination
           )
         ) {
           this.pendingSubscriptions.push({
@@ -121,19 +121,19 @@ export class WebSocketService {
       // If there's a pending connect promise, reject it as the connection was lost
       if (this.rejectConnectPromise) {
         this.rejectConnectPromise(
-          new Error('WebSocket Disconnected during connection attempt.'),
+          new Error("WebSocket Disconnected during connection attempt.")
         );
         this.resolveConnectPromise = null;
         this.rejectConnectPromise = null;
       }
     };
 
-    this.client.onStompError = frame => {
+    this.client.onStompError = (frame) => {
       console.error(
-        '[WebSocketService] STOMP Error:',
-        frame.headers['message'],
-        'Details:',
-        frame.body,
+        "[WebSocketService] STOMP Error:",
+        frame.headers["message"],
+        "Details:",
+        frame.body
       );
       this._isConnecting = false; // STOMP error implies current explicit attempt failed
 
@@ -142,14 +142,14 @@ export class WebSocketService {
         this.internalReconnectAttempts++;
         if (this.internalReconnectAttempts >= this.maxReconnectAttempts) {
           console.warn(
-            '[WebSocketService] Max reconnect attempts reached due to STOMP error. Stopping reconnections.',
+            "[WebSocketService] Max reconnect attempts reached due to STOMP error. Stopping reconnections."
           );
           this.shouldReconnect = false;
           this.client?.deactivate(); // Explicitly stop the client from further retries
           // Reject any pending connect promise if max attempts reached
           if (this.rejectConnectPromise) {
             this.rejectConnectPromise(
-              new Error('Max STOMP error reconnect attempts reached.'),
+              new Error("Max STOMP error reconnect attempts reached.")
             );
             this.resolveConnectPromise = null;
             this.rejectConnectPromise = null;
@@ -158,8 +158,8 @@ export class WebSocketService {
       }
     };
 
-    this.client.onWebSocketError = event => {
-      console.error('[WebSocketService] WebSocket Error:', event);
+    this.client.onWebSocketError = (event) => {
+      console.error("[WebSocketService] WebSocket Error:", event);
       this._isConnecting = false; // WebSocket error implies current explicit attempt failed
 
       // Increment reconnection attempts and check if max attempts reached
@@ -167,14 +167,14 @@ export class WebSocketService {
         this.internalReconnectAttempts++;
         if (this.internalReconnectAttempts >= this.maxReconnectAttempts) {
           console.warn(
-            '[WebSocketService] Max reconnect attempts reached due to WebSocket error. Stopping reconnections.',
+            "[WebSocketService] Max reconnect attempts reached due to WebSocket error. Stopping reconnections."
           );
           this.shouldReconnect = false;
           this.client?.deactivate(); // Explicitly stop the client from further retries
           // Reject any pending connect promise if max attempts reached
           if (this.rejectConnectPromise) {
             this.rejectConnectPromise(
-              new Error('Max WebSocket error reconnect attempts reached.'),
+              new Error("Max WebSocket error reconnect attempts reached.")
             );
             this.resolveConnectPromise = null;
             this.rejectConnectPromise = null;
@@ -183,32 +183,32 @@ export class WebSocketService {
       }
     };
 
-    this.client.onWebSocketClose = event => {
+    this.client.onWebSocketClose = (event) => {
       console.log(
-        '[WebSocketService] WebSocket closed:',
+        "[WebSocketService] WebSocket closed:",
         event.code,
-        event.reason,
+        event.reason
       );
       this._isConnecting = false; // WebSocket closed, so direct connection attempt is over.
 
       // Notify all registered onDisconnect callbacks (as WebSocket close is a form of disconnect)
-      this.onDisconnectCallbacks.forEach(callback => {
+      this.onDisconnectCallbacks.forEach((callback) => {
         try {
           callback();
         } catch (error) {
           console.error(
-            '[WebSocketService] Error in WebSocket close disconnect callback:',
-            error,
+            "[WebSocketService] Error in WebSocket close disconnect callback:",
+            error
           );
         }
       });
 
       // Similar to onDisconnect, clear active and queue for resubscription
       this.subscriptions = [];
-      this.activeSubscriptions.forEach(sub => {
+      this.activeSubscriptions.forEach((sub) => {
         if (
           !this.pendingSubscriptions.some(
-            p => p.destination === sub.destination,
+            (p) => p.destination === sub.destination
           )
         ) {
           this.pendingSubscriptions.push({
@@ -225,14 +225,14 @@ export class WebSocketService {
         this.internalReconnectAttempts++;
         if (this.internalReconnectAttempts >= this.maxReconnectAttempts) {
           console.warn(
-            '[WebSocketService] Max reconnect attempts reached after WebSocket close. Stopping further automatic reconnections.',
+            "[WebSocketService] Max reconnect attempts reached after WebSocket close. Stopping further automatic reconnections."
           );
           this.shouldReconnect = false; // Prevent further automatic reconnections
           this.client?.deactivate(); // Explicitly deactivate to prevent more attempts
           // Reject any pending connect promise
           if (this.rejectConnectPromise) {
             this.rejectConnectPromise(
-              new Error('Max WebSocket close reconnect attempts reached.'),
+              new Error("Max WebSocket close reconnect attempts reached.")
             );
             this.resolveConnectPromise = null;
             this.rejectConnectPromise = null;
@@ -246,7 +246,7 @@ export class WebSocketService {
     const toResubscribe = [...this.pendingSubscriptions];
     this.pendingSubscriptions = []; // Clear pending list as we are attempting to resubscribe
 
-    toResubscribe.forEach(({destination, callback}) => {
+    toResubscribe.forEach(({ destination, callback }) => {
       try {
         if (this.client && this.client.connected) {
           // Ensure client is still connected before subscribing
@@ -260,15 +260,15 @@ export class WebSocketService {
           console.log(`[WebSocketService] Resubscribed to ${destination}`);
         } else {
           // If client disconnected during iteration, put back to pending
-          this.pendingSubscriptions.push({destination, callback});
+          this.pendingSubscriptions.push({ destination, callback });
         }
       } catch (error) {
         console.error(
           `[WebSocketService] Failed to resubscribe to ${destination}:`,
-          error,
+          error
         );
         // If subscription fails, put it back in pending for next connect
-        this.pendingSubscriptions.push({destination, callback});
+        this.pendingSubscriptions.push({ destination, callback });
       }
     });
 
@@ -290,8 +290,8 @@ export class WebSocketService {
         callback();
       } catch (error) {
         console.error(
-          '[WebSocketService] Error in immediate onConnect callback execution:',
-          error,
+          "[WebSocketService] Error in immediate onConnect callback execution:",
+          error
         );
       }
     }
@@ -358,7 +358,7 @@ export class WebSocketService {
     return new Promise((resolve, reject) => {
       if (this.isConnected()) {
         console.log(
-          '[WebSocketService] Already connected, resolving immediately.',
+          "[WebSocketService] Already connected, resolving immediately."
         );
         resolve();
         return;
@@ -366,7 +366,7 @@ export class WebSocketService {
 
       if (this._isConnecting) {
         console.log(
-          '[WebSocketService] Connection already in progress, queuing promise.',
+          "[WebSocketService] Connection already in progress, queuing promise."
         );
         // If already connecting, chain this promise's resolution/rejection to the ongoing one
         const originalResolve = this.resolveConnectPromise;
@@ -376,7 +376,7 @@ export class WebSocketService {
           if (originalResolve) originalResolve();
           resolve();
         };
-        this.rejectConnectPromise = error => {
+        this.rejectConnectPromise = (error) => {
           if (originalReject) originalReject(error);
           reject(error);
         };
@@ -396,16 +396,16 @@ export class WebSocketService {
           this.initClient(); // Ensure client is initialized before activation
         }
         this.client!.activate();
-        console.log('[WebSocketService] Connection initiated...');
+        console.log("[WebSocketService] Connection initiated...");
 
         // Set a timeout for the *initial* explicit connect() call
         setTimeout(() => {
           if (this._isConnecting && !this.isConnected()) {
             console.warn(
-              '[WebSocketService] Explicit connect() call timed out.',
+              "[WebSocketService] Explicit connect() call timed out."
             );
             if (this.rejectConnectPromise) {
-              this.rejectConnectPromise(new Error('Connection timeout.'));
+              this.rejectConnectPromise(new Error("Connection timeout."));
               this.resolveConnectPromise = null;
               this.rejectConnectPromise = null;
             }
@@ -416,8 +416,8 @@ export class WebSocketService {
       } catch (error: any) {
         this._isConnecting = false; // Mark explicit attempt as failed
         console.error(
-          '[WebSocketService] Error activating STOMP client:',
-          error,
+          "[WebSocketService] Error activating STOMP client:",
+          error
         );
         // Reject the promise immediately if activation fails
         if (this.rejectConnectPromise) {
@@ -440,20 +440,20 @@ export class WebSocketService {
 
     // Reject any pending connect promise when explicitly disconnecting
     if (this.rejectConnectPromise) {
-      this.rejectConnectPromise(new Error('Explicitly disconnected.'));
+      this.rejectConnectPromise(new Error("Explicitly disconnected."));
       this.resolveConnectPromise = null;
       this.rejectConnectPromise = null;
     }
 
     if (this.client && this.client.active) {
       // Unsubscribe from all active STOMP subscriptions
-      this.subscriptions.forEach(sub => {
+      this.subscriptions.forEach((sub) => {
         try {
           sub.unsubscribe();
         } catch (error) {
           console.error(
-            '[WebSocketService] Error unsubscribing during disconnect:',
-            error,
+            "[WebSocketService] Error unsubscribing during disconnect:",
+            error
           );
         }
       });
@@ -463,10 +463,10 @@ export class WebSocketService {
       this.pendingSubscriptions = []; // Clear pending subscriptions as they shouldn't be re-established after explicit disconnect
 
       this.client.deactivate(); // Deactivate the STOMP client
-      console.log('[WebSocketService] Disconnected and cleaned up.');
+      console.log("[WebSocketService] Disconnected and cleaned up.");
     } else {
       console.log(
-        '[WebSocketService] Not connected or client not active, no need to disconnect.',
+        "[WebSocketService] Not connected or client not active, no need to disconnect."
       );
     }
 
@@ -483,28 +483,28 @@ export class WebSocketService {
    */
   public subscribe(
     destination: string,
-    callback: (message: IMessage) => void,
+    callback: (message: IMessage) => void
   ): StompSubscription | undefined {
     console.log(`[WebSocketService] subscribe() called for ${destination}`);
 
     // Check if already actively subscribed
     const existingActive = this.activeSubscriptions.find(
-      sub => sub.destination === destination,
+      (sub) => sub.destination === destination
     );
     if (existingActive) {
       console.warn(
-        `[WebSocketService] Already actively subscribed to ${destination}.`,
+        `[WebSocketService] Already actively subscribed to ${destination}.`
       );
       return existingActive.stompSubscription;
     }
 
     // Check if already pending subscription
     const isPending = this.pendingSubscriptions.some(
-      sub => sub.destination === destination,
+      (sub) => sub.destination === destination
     );
     if (isPending) {
       console.warn(
-        `[WebSocketService] Subscription already pending for ${destination}.`,
+        `[WebSocketService] Subscription already pending for ${destination}.`
       );
       return undefined; // Cannot return StompSubscription for a pending one
     }
@@ -524,17 +524,17 @@ export class WebSocketService {
       } catch (error) {
         console.error(
           `[WebSocketService] Failed to subscribe to ${destination} while connected:`,
-          error,
+          error
         );
         // Add to pending for retry on next successful connect
-        this.pendingSubscriptions.push({destination, callback});
+        this.pendingSubscriptions.push({ destination, callback });
         return undefined;
       }
     } else {
       console.log(
-        `[WebSocketService] Not connected; queuing subscription for ${destination}.`,
+        `[WebSocketService] Not connected; queuing subscription for ${destination}.`
       );
-      this.pendingSubscriptions.push({destination, callback});
+      this.pendingSubscriptions.push({ destination, callback });
       return undefined;
     }
   }
@@ -546,35 +546,35 @@ export class WebSocketService {
   public unsubscribe(destination: string): void {
     // Remove from active subscriptions
     const activeIndex = this.activeSubscriptions.findIndex(
-      sub => sub.destination === destination,
+      (sub) => sub.destination === destination
     );
 
     if (activeIndex !== -1) {
-      const {stompSubscription} = this.activeSubscriptions[activeIndex];
+      const { stompSubscription } = this.activeSubscriptions[activeIndex];
       try {
         stompSubscription.unsubscribe(); // Unsubscribe from STOMP
       } catch (error) {
         console.error(
           `[WebSocketService] Error during STOMP unsubscribe from ${destination}:`,
-          error,
+          error
         );
       }
 
       this.activeSubscriptions.splice(activeIndex, 1); // Remove from our active list
       this.subscriptions = this.subscriptions.filter(
-        sub => sub.id !== stompSubscription.id, // Remove from raw list
+        (sub) => sub.id !== stompSubscription.id // Remove from raw list
       );
       console.log(`[WebSocketService] Unsubscribed from ${destination}.`);
     }
 
     // Remove from pending subscriptions (if it was queued but not yet active)
     const pendingIndex = this.pendingSubscriptions.findIndex(
-      sub => sub.destination === destination,
+      (sub) => sub.destination === destination
     );
     if (pendingIndex !== -1) {
       this.pendingSubscriptions.splice(pendingIndex, 1);
       console.log(
-        `[WebSocketService] Removed pending subscription for ${destination}.`,
+        `[WebSocketService] Removed pending subscription for ${destination}.`
       );
     }
     this.logAllSubscribedDestinations(); // Log current subscription state
@@ -589,21 +589,21 @@ export class WebSocketService {
   public send(
     destination: string,
     headers: Record<string, string> = {},
-    body: string = '',
+    body: string = ""
   ): void {
     if (this.isConnected()) {
       try {
-        this.client!.publish({destination, headers, body});
+        this.client!.publish({ destination, headers, body });
         console.log(`[WebSocketService] Message sent to ${destination}.`);
       } catch (error) {
         console.error(
           `[WebSocketService] Failed to send message to ${destination}:`,
-          error,
+          error
         );
       }
     } else {
       console.warn(
-        '[WebSocketService] Client not connected. Message not sent.',
+        "[WebSocketService] Client not connected. Message not sent."
       );
     }
   }
@@ -616,28 +616,51 @@ export class WebSocketService {
     const pendingCount = this.pendingSubscriptions.length;
 
     if (activeCount === 0 && pendingCount === 0) {
-      console.log('[WebSocketService] No active or pending subscriptions.');
+      console.log("[WebSocketService] No active or pending subscriptions.");
       return;
     }
 
     if (activeCount > 0) {
-      console.log('[WebSocketService] Active subscriptions:');
+      console.log("[WebSocketService] Active subscriptions:");
       this.activeSubscriptions.forEach((sub, index) => {
         console.log(
           `    ${index + 1}. ${sub.destination} (ID: ${
             sub.stompSubscription.id
-          })`,
+          })`
         );
       });
     }
 
     if (pendingCount > 0) {
       console.log(
-        '[WebSocketService] Pending subscriptions (will be re-attempted on connect):',
+        "[WebSocketService] Pending subscriptions (will be re-attempted on connect):"
       );
       this.pendingSubscriptions.forEach((sub, index) => {
         console.log(`    ${index + 1}. ${sub.destination}`);
       });
     }
+  }
+}
+
+let wsServiceInstance: WebSocketService | null = null;
+
+export namespace WebSocket {
+  export function init(userId: string, websocketUrl: string): WebSocketService {
+    if (!wsServiceInstance) {
+      wsServiceInstance = new WebSocketService(userId, websocketUrl);
+    }
+    return wsServiceInstance;
+  }
+
+  export function get(): WebSocketService {
+    if (!wsServiceInstance) {
+      throw new Error("WebSocketService has not been initialized.");
+    }
+    return wsServiceInstance;
+  }
+
+  export function reset(): void {
+    wsServiceInstance?.disconnect();
+    wsServiceInstance = null;
   }
 }
