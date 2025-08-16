@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import api from "@/lib/apis";
+import api from "../../../apis";
 
 type UserResponse = any;
 type ThunkApiConfig = {
@@ -25,6 +25,20 @@ export const getAllAstrologerById = createAsyncThunk<
 >("astrologers/getAllAstrologersById", async (id, { rejectWithValue }) => {
   try {
     const response = await api.get(`/api/v1/astrologers/${id.id}`);
+
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+});
+
+export const getOnlineAstrologer = createAsyncThunk<
+  UserResponse,
+  void,
+  ThunkApiConfig
+>("astrologers/getOnlineAstrologer", async (_, { rejectWithValue }) => {
+  try {
+    const response = await api.get(`/api/v1/astrologers/online/list`);
 
     return response.data;
   } catch (error: any) {

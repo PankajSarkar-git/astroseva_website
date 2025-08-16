@@ -1,26 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import CustomInputV1 from "@/components/CustomInputV1";
 import { Button } from "@/components/ui/button";
 import { themeColors, colors } from "@/lib/constant/colors";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/imgs/logo.png";
-import { useAppDispatch } from "@/lib/hook/redux-hook";
+import { useAppDispatch, useAppSelector } from "@/lib/hook/redux-hook";
 import { loginUserPassword } from "@/lib/store/reducer/auth";
+import { WebSocket } from "@/lib/services/socket-service-new";
 
 const LoginPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [formData, setFormData] = useState({ phone: "", password: "" });
   const [errors, setErrors] = useState({ phone: "", password: "" });
   const [loading, setLoading] = useState(false);
-
   const validatePhone = (phone: string) => /^[6-9]\d{9}$/.test(phone.trim());
-
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -57,7 +56,12 @@ const LoginPage = () => {
       const response = await dispatch(loginUserPassword(payload)).unwrap();
       console.log(response, "----response");
       if (response.success) {
-        router.push("/");
+        console.log(response, "---login response");
+        // WebSocket.init(userId, websocketUrl)
+        //   .connect()
+        //   .then(() => console.log("Connected to WebSocket!"))
+        //   .catch((err) => console.error("WebSocket connection failed:", err));
+        router.push("/home");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -65,6 +69,12 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/home");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div

@@ -23,6 +23,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/lib/hook/redux-hook";
+import { logout } from "@/lib/store/reducer/auth";
 
 // Mock user data
 const userData = {
@@ -36,6 +38,7 @@ const Navbar = () => {
   const [activeItem, setActiveItem] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const navItems = [
     { id: "home", label: "Home", icon: Home, href: "/" },
@@ -74,6 +77,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     console.log("Logging out...");
+    dispatch(logout());
     // Add logout logic here
   };
 
