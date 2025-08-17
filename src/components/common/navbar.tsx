@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Users,
@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   X,
+  MessageCircleIcon,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,9 +23,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { logout } from "@/lib/store/reducer/auth";
+import { useUserRole } from "@/lib/hook/use-role";
 
 // Mock user data
 const userData = {
@@ -35,55 +37,90 @@ const userData = {
 };
 
 const Navbar = () => {
-  const [activeItem, setActiveItem] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
+  const path = usePathname();
   const dispatch = useAppDispatch();
+  const role = useUserRole();
 
   const navItems = [
-    { id: "home", label: "Home", icon: Home, href: "/" },
+    {
+      id: "home",
+      label: "Home",
+      icon: Home,
+      href: "/home",
+      role: ["ASTROLOGER", "USER"],
+    },
     {
       id: "astrologers",
       label: "Astrologers",
       icon: Users,
       href: "/astrologers",
+      role: ["USER"],
     },
-    { id: "history", label: "History", icon: History, href: "/history" },
-    { id: "remedies", label: "Remedies", icon: Sparkles, href: "/remedies" },
+    {
+      id: "requests",
+      label: "Requests",
+      icon: Users,
+      href: "/requests",
+      role: ["ASTROLOGER"],
+    },
+    {
+      id: "chat",
+      label: "Chat",
+      icon: MessageCircleIcon,
+      href: "/history",
+      role: ["ASTROLOGER", "USER"],
+    },
+    {
+      id: "remedies",
+      label: "Remedies",
+      icon: Sparkles,
+      href: "/remedies",
+      role: ["ASTROLOGER", "USER"],
+    },
   ];
 
   const profileMenuItems = [
-    { id: "profile", label: "Profile", icon: User, href: "/profile" },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: User,
+      href: "/profile",
+      role: ["ASTROLOGER", "USER"],
+    },
     {
       id: "wallet",
       label: "Wallet",
       icon: Wallet,
       href: "/wallet",
       badge: userData.walletBalance,
+      role: ["ASTROLOGER", "USER"],
     },
-    { id: "settings", label: "Settings", icon: Settings, href: "/settings" },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      href: "/settings",
+      role: ["ASTROLOGER", "USER"],
+    },
   ];
 
-  const handleNavClick = (itemId) => {
-    setActiveItem(itemId);
+  const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
-    console.log(`Navigating to: ${itemId}`);
-    router.push(itemId);
+    router.push(href);
   };
 
-  const handleProfileMenuClick = (itemId) => {
-    console.log(`Profile menu clicked: ${itemId}`);
+  const handleProfileMenuClick = (href: string) => {
+    router.push(href);
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
     dispatch(logout());
-    // Add logout logic here
+    // additional logout logic (like router.push("/login")) can go here
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
   return (
     <>
@@ -101,14 +138,16 @@ const Navbar = () => {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 {navItems.map((item) => {
+                  if (!item.role.includes(role)) return;
                   const IconComponent = item.icon;
+                  const isActive = path === item.href;
                   return (
                     <button
                       key={item.id}
-                      onClick={() => handleNavClick(item.id)}
+                      onClick={() => handleNavClick(item.href)}
                       className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        activeItem === item.id
-                          ? "bg-gradient-to-r from-surface-primary-surface via-surface-primary-surface/80 to-surface-highlight text-white shadow-lg transform scale-105"
+                        isActive
+                          ? "bg-gradient-to-r from-surface-primary-surface via-surface-primary-surface/80 to-surface-highlight text-white shadow-lg scale-105"
                           : "text-gray-700 hover:text-orange-600 hover:bg-orange-50"
                       }`}
                     >
@@ -178,7 +217,7 @@ const Navbar = () => {
                     return (
                       <DropdownMenuItem
                         key={item.id}
-                        onClick={() => handleProfileMenuClick(item.id)}
+                        onClick={() => handleProfileMenuClick(item.href)}
                         className="flex items-center justify-between p-3 cursor-pointer hover:bg-orange-50 rounded-lg transition-colors duration-200"
                       >
                         <div className="flex items-center">
@@ -230,12 +269,14 @@ const Navbar = () => {
             <div className="px-2 pt-2 pb-3 space-y-1 shadow-lg">
               {navItems.map((item) => {
                 const IconComponent = item.icon;
+                const isActive = path === item.href;
+
                 return (
                   <button
                     key={item.id}
-                    onClick={() => handleNavClick(item.id)}
+                    onClick={() => handleNavClick(item.href)}
                     className={`flex items-center w-full px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${
-                      activeItem === item.id
+                      isActive
                         ? "bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-md"
                         : "text-gray-700 hover:text-orange-600 hover:bg-orange-50"
                     }`}

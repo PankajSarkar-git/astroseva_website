@@ -150,9 +150,9 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen  bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen pt-16 bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
       {/* Header with Search */}
-      <div className="bg-yellow-400 py-8">
+      <div className="bg-surface-primary-surface py-12">
         <div className="container mx-auto max-w-[600px] px-4 flex gap-4">
           <Input
             className="bg-white rounded-full h-10"

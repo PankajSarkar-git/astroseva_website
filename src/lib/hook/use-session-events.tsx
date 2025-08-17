@@ -8,6 +8,7 @@ import { decodeMessageBody } from "../utils/utils";
 import {
   setActiveSession,
   setCallSession,
+  setIsWaiting,
   setSession,
   toggleCountRefresh,
 } from "../store/reducer/session";
@@ -48,7 +49,7 @@ export const useSessionEvents = (userId: string = "") => {
 
     const queueDest = `/topic/queue/${userId}`;
     const requestDest = `/topic/chat/${userId}/chatId`;
-    const callSessionDest = `/topic/call/${userId}/session`;
+
     const onlineAstroDest = `/topic/online/astrologer`;
     const activeSessionDest = `/topic/session/${userId}`;
     const onlineAstrologerDest = "/topic/online/astrologer/list";
@@ -58,7 +59,6 @@ export const useSessionEvents = (userId: string = "") => {
     subscriptionsRef.current = [
       queueDest,
       requestDest,
-      callSessionDest,
       onlineAstroDest,
       activeSessionDest,
       onlineAstrologerDest,
@@ -74,19 +74,10 @@ export const useSessionEvents = (userId: string = "") => {
       }
     });
 
-    ws.subscribe(callSessionDest, (msg) => {
-      try {
-        const sessionData = JSON.parse(decodeMessageBody(msg));
-        dispatch(setCallSession(sessionData));
-        getTransactionDetails();
-      } catch (err) {
-        console.log("Session details parse error:", err);
-      }
-    });
-
     ws.subscribe(requestDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
+        setIsWaiting(false);
         dispatch(setActiveSession(data));
         dispatch(setSession(data));
         getTransactionDetails();

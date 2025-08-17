@@ -78,7 +78,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
               </div>
 
               {/* Custom Close Button */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
@@ -95,8 +95,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
                 "
               >
                 <X className="h-4 w-4 text-gray-500" />
-                <span className="sr-only">Close</span>
-              </Button>
+              </Button> */}
             </div>
           </DialogHeader>
         )}

@@ -33,7 +33,7 @@ const AstrologerCard = ({ astrologer, isLive = false }) => (
       <p className="text-orange-600 font-bold mb-4">{astrologer.rate}</p>
 
       <div className="flex gap-2 w-full">
-        <button className="flex-1 bg-orange-500 text-white py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center">
+        <button className="flex-1 bg-button-primary text-white py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center">
           <Phone className="w-4 h-4 mr-1" />
           Call
         </button>

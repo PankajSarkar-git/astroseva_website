@@ -27,14 +27,23 @@ export default function ProtectedRoute({
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // ← Make sure it's true on mount
+  const [hydrated, setHydrated] = useState(false); // ← Add hydration flag
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const websocketUrl = "https://backend.astrosevaa.com/ws-chat";
 
   const { subscribeToSessionEvents, unsubscribeFromSessionEvents } =
     useSessionEvents(user.id);
 
+  // STEP 1: Wait for hydration
   useEffect(() => {
+    setHydrated(true);
+  }, []);
+
+  // STEP 2: Check authentication AFTER hydration
+  useEffect(() => {
+    if (!hydrated) return;
+
     const checkAuth = async () => {
       if (!token) {
         dispatch(logout());
@@ -79,10 +88,11 @@ export default function ProtectedRoute({
     };
 
     checkAuth();
-  }, [token, dispatch]);
+  }, [hydrated, token, dispatch]);
 
+  // STEP 3: Initialize WebSocket only when hydrated + authenticated
   useEffect(() => {
-    if (!user.id) return;
+    if (!hydrated || !user?.id || !isAuthenticated) return;
 
     WebSocket.init(user.id, websocketUrl)
       .connect()
@@ -100,15 +110,22 @@ export default function ProtectedRoute({
       WebSocket.get().disconnect();
       WebSocket.reset();
     };
-  }, [user.id, subscribeToSessionEvents, unsubscribeFromSessionEvents]);
+  }, [
+    hydrated,
+    isAuthenticated,
+    user.id,
+    subscribeToSessionEvents,
+    unsubscribeFromSessionEvents,
+  ]);
 
+  // STEP 4: Redirect to login after auth check
   useEffect(() => {
     if (!loading && !isAuthenticated && !PUBLIC_ROUTES.includes(pathname)) {
       router.replace("/login");
     }
   }, [loading, isAuthenticated, pathname, router]);
 
-  if (loading) {
+  if (loading || !hydrated) {
     return <FullScreenLoader />;
   }
 

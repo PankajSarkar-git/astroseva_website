@@ -4,25 +4,23 @@ import {
   Message,
   OtherUserType,
   UserDetail,
-} from './../../../utils/types';
-// store/slices/sessionSlice.ts
+} from "./../../../utils/types";
 
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {ChatSession, SessionState} from '../../../utils/types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ChatSession, SessionState } from "../../../utils/types";
 import {
-  acceptCallRequest,
   acceptSessionRequest,
   deleteSessionRequest,
   getCallHistory,
   getChatHistory,
   getChatMessages,
   getQueueRequest,
-  sendCallRequest,
   sendSessionRequest,
   skipSessionRequest,
-} from './action';
+} from "./action";
 
 const initialState: SessionState = {
+  isWaiting: false,
   activeSession: null,
   session: null,
   callSession: null,
@@ -36,9 +34,12 @@ const initialState: SessionState = {
 };
 
 const sessionSlice = createSlice({
-  name: 'session',
+  name: "session",
   initialState,
   reducers: {
+    setIsWaiting(state, action: PayloadAction<boolean>) {
+      state.isWaiting = action.payload;
+    },
     setSession(state, action: PayloadAction<ChatSession>) {
       state.session = action.payload;
     },
@@ -49,7 +50,7 @@ const sessionSlice = createSlice({
       state.callSession = action.payload;
     },
     setRequest(state, action) {
-      console.log(action.payload, '----paylaod coming');
+      console.log(action.payload, "----paylaod coming");
       state.sessionRequest = action.payload;
     },
 
@@ -80,30 +81,18 @@ const sessionSlice = createSlice({
     clearCallSession(state) {
       state.callSession = null;
     },
-    incrementQueueRequest: state => {
+    incrementQueueRequest: (state) => {
       state.queueRequestCount += 1;
     },
-    clearQueueRequestCount: state => {
+    clearQueueRequestCount: (state) => {
       state.queueRequestCount = 0;
     },
     setQueueCount: (state, action) => {
       state.queueRequestCount = action.payload;
     },
-    toggleCountRefresh: state => {
+    toggleCountRefresh: (state) => {
       state.countRefresh = !state.countRefresh;
     },
-  },
-  extraReducers: builder => {
-    builder.addCase(sendSessionRequest.fulfilled, state => {});
-    builder.addCase(sendCallRequest.fulfilled, state => {});
-    builder.addCase(getQueueRequest.fulfilled, state => {});
-    builder.addCase(acceptSessionRequest.fulfilled, state => {});
-    builder.addCase(skipSessionRequest.fulfilled, state => {});
-    builder.addCase(getChatHistory.fulfilled, state => {});
-    builder.addCase(getCallHistory.fulfilled, state => {});
-    builder.addCase(getChatMessages.fulfilled, state => {});
-    builder.addCase(deleteSessionRequest.fulfilled, state => {});
-    builder.addCase(acceptCallRequest.fulfilled, state => {});
   },
 });
 
@@ -124,6 +113,7 @@ export const {
   clearQueueRequestCount,
   toggleCountRefresh,
   setActiveSession,
+  setIsWaiting,
 } = sessionSlice.actions;
 
 export {
@@ -134,8 +124,6 @@ export {
   getCallHistory,
   acceptSessionRequest,
   getChatMessages,
-  sendCallRequest,
-  acceptCallRequest,
   deleteSessionRequest,
 };
 
