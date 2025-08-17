@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ReduxProvider } from "@/providers/redux-provider";
-import ProtectedRoute from "@/providers/ProtectedRoute";
+import { ReduxProvider } from "@/lib/providers/redux-provider";
+import ProtectedRoute from "@/lib/providers/ProtectedRoute";
+import Navbar from "@/components/common/navbar";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,10 +29,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen w-full overflow-x-hidden`}
       >
         <ReduxProvider>
-          <ProtectedRoute>{children}</ProtectedRoute>
+          <ProtectedRoute>
+            <div className="h-full min-h-screen w-full relative">
+              {children}
+              <Toaster />
+            </div>
+          </ProtectedRoute>
         </ReduxProvider>
       </body>
     </html>
