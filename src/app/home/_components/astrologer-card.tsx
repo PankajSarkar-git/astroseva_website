@@ -1,8 +1,23 @@
 "use-client";
 import { MessageCircle, Phone } from "lucide-react";
+interface AstrologerCardProps {
+  astrologer: {
+    name: string;
+    expertise: string;
+    about: string;
+    imgUri: string;
+    id: string;
+    userId: string;
+    online: boolean;
+  };
+  isLive?: boolean;
+}
 
 // Astrologer Card Component
-const AstrologerCard = ({ astrologer, isLive = false }) => (
+const AstrologerCard = ({
+  astrologer,
+  isLive = false,
+}: AstrologerCardProps) => (
   <div
     className={`bg-white rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 
                    ${isLive ? "border-2 border-green-400" : ""} relative`}
@@ -17,7 +32,7 @@ const AstrologerCard = ({ astrologer, isLive = false }) => (
     <div className="flex flex-col items-center text-center">
       <div className="relative mb-4">
         <img
-          src={astrologer.avatar}
+          src={astrologer.imgUri}
           alt={astrologer.name}
           className="w-20 h-20 rounded-full object-cover border-4 border-orange-200"
         />
@@ -28,9 +43,9 @@ const AstrologerCard = ({ astrologer, isLive = false }) => (
 
       <h3 className="font-bold text-gray-800 mb-2">{astrologer.name}</h3>
       <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-        {astrologer.specialty}
+        {astrologer.expertise}
       </p>
-      <p className="text-orange-600 font-bold mb-4">{astrologer.rate}</p>
+      {/* <p className="text-orange-600 font-bold mb-4">{astrologer.}</p> */}
 
       <div className="flex gap-2 w-full">
         <button className="flex-1 bg-orange-500 text-white py-2 px-3 rounded-lg hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center">

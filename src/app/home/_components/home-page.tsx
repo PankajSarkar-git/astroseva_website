@@ -20,7 +20,10 @@ import QuickNavigation from "./quick-navigation";
 import AstrologerCard from "./astrologer-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
+import { useAppDispatch } from "@/lib/hook/redux-hook";
+import { getAllAstrologers } from "@/lib/store/reducer/astrologers";
+import { Astrologers } from "@/lib/utils/types";
+import { getBanner } from "@/lib/store/reducer/general";
 // Mock data for demonstration
 const introCardData = [
   {
@@ -64,25 +67,6 @@ const introCardData = [
     online: true,
   },
 ];
-
-const bannerData = [
-  {
-    id: "1",
-    imgUrl:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=300&fit=crop",
-  },
-  {
-    id: "2",
-    imgUrl:
-      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=300&fit=crop",
-  },
-  {
-    id: "3",
-    imgUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=300&fit=crop",
-  },
-];
-
 // Shimmer/Skeleton component
 const SkeletonItem = ({ className = "" }) => (
   <div
@@ -95,24 +79,84 @@ const SkeletonItem = ({ className = "" }) => (
 // Main Home Component
 const Home = () => {
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState({
+  const [loading, setLoading] = useState<{
+    banner: boolean;
+    astrologer: boolean;
+    onlineAstrologer: boolean;
+  }>({
     banner: false,
     astrologer: false,
     onlineAstrologer: false,
   });
-  const [astrologersData, setAstrologersData] = useState(introCardData);
+  const [banner, setBanner] = useState<{ imgUrl: string; id: string }[]>([]);
   const [onlineAstrologers, setOnlineAstrologers] = useState(
     introCardData.filter((a) => a.online)
   );
+  const [astrologersData, setAstrologersData] = useState<
+    {
+      name: string;
+      expertise: string;
+      about: string;
+      imgUri: string;
+      id: string;
+      userId: string;
+      online: boolean;
+    }[]
+  >([]);
+
+  const dispatch = useAppDispatch();
 
   // Simulate loading states
   useEffect(() => {
-    setLoading({ banner: true, astrologer: true, onlineAstrologer: true });
-
-    setTimeout(() => {
-      setLoading({ banner: false, astrologer: false, onlineAstrologer: false });
-    }, 1500);
+    getBannerData();
+    fetchAstrologersData();
   }, []);
+
+  const fetchAstrologersData = async (pageNumber = 1, append = false) => {
+    if (loading.astrologer) return;
+    try {
+      setLoading((prev) => ({ ...prev, astrologer: true }));
+
+      const payload = await dispatch(getAllAstrologers(`?page=1`)).unwrap();
+
+      if (payload.success) {
+        console.log("payload", payload);
+
+        const newData =
+          payload.astrologers.map((item: Astrologers) => ({
+            name: item?.user?.name,
+            expertise: item?.expertise,
+            about: item?.about,
+            id: item?.id,
+            imgUri: item?.user?.imgUri,
+            userId: item?.user?.id,
+            online: item?.online,
+          })) || [];
+
+        setAstrologersData(newData);
+      }
+    } catch (error) {
+    } finally {
+      setLoading((prev) => ({ ...prev, astrologer: false }));
+    }
+  };
+  console.log("astrologersData", astrologersData);
+
+  const getBannerData = async () => {
+    if (loading.banner) return;
+    try {
+      setLoading((prev) => ({ ...prev, banner: true }));
+
+      const payload = await dispatch(getBanner()).unwrap();
+
+      if (payload.success) {
+        setBanner(payload.bannars);
+      }
+    } catch (error) {
+    } finally {
+      setLoading((prev) => ({ ...prev, banner: false }));
+    }
+  };
 
   const handleSearchChange = (e: any) => {
     setSearch(e.target.value);
@@ -148,7 +192,9 @@ const Home = () => {
   const handleChatNow = () => {
     console.log("Navigate to Astrologers for chatting");
   };
-
+  const onlineAstrologersFiltered = astrologersData.filter(
+    (a) => a.online === true
+  );
   return (
     <div className="min-h-screen  bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
       {/* Header with Search */}
@@ -187,12 +233,12 @@ const Home = () => {
             <div className="px-5 flex justify-center">
               <Carousel className="w-[90%]">
                 <CarouselContent className="-ml-4">
-                  {bannerData.map((item) => (
+                  {banner.map((item) => (
                     <CarouselItem key={item.id} className="pl-4">
                       <img
                         src={item.imgUrl}
                         alt="Banner"
-                        className="w-full h-60 md:h-80 object-cover rounded-xl"
+                        className="w-full max-h-80 object-fill rounded-xl"
                       />
                     </CarouselItem>
                   ))}
@@ -205,42 +251,49 @@ const Home = () => {
         </section>
 
         {/* Live Astrologers */}
-        <section>
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
-            Live Astrologer
-          </h2>
+        {onlineAstrologersFiltered.length > 0 && (
+          <section>
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
+              Live Astrologer
+            </h2>
 
-          {loading.onlineAstrologer ? (
-            <div className="flex justify-center">
-              <SkeletonItem className="w-80 h-96" />
-            </div>
-          ) : (
-            <div className="px-5 flex justify-center">
-              <Carousel
-                plugins={[Autoplay({ delay: 3000 })]}
-                opts={{ loop: true, align: "start" }}
-                className="w-[90%]"
-              >
-                <CarouselContent className="-ml-4 my-8">
-                  {onlineAstrologers.map((astrologer) => (
-                    <CarouselItem
-                      key={astrologer.id}
-                      className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
-                    >
-                      <div className="flex justify-center">
-                        <div className="w-80">
-                          <AstrologerCard astrologer={astrologer} isLive />
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-          )}
-        </section>
+            {loading.onlineAstrologer ? (
+              <div className="flex justify-center">
+                <SkeletonItem className="w-80 h-96" />
+              </div>
+            ) : (
+              <div className="px-5 flex justify-center">
+                <Carousel
+                  plugins={[Autoplay({ delay: 3000 })]}
+                  opts={{ loop: true, align: "start" }}
+                  className="w-[90%]"
+                >
+                  <CarouselContent className="-ml-4 my-8">
+                    {astrologersData
+                      .filter((a) => a.online === true)
+                      .map((astrologer) => (
+                        <CarouselItem
+                          key={astrologer.id}
+                          className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                        >
+                          <div className="flex justify-center">
+                            <div className="w-80">
+                              <AstrologerCard
+                                astrologer={astrologer}
+                                isLive={astrologer.online}
+                              />
+                            </div>
+                          </div>
+                        </CarouselItem>
+                      ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Divider */}
         <div className="flex justify-center">
@@ -269,12 +322,12 @@ const Home = () => {
       </div>
 
       {/* Fixed Action Buttons */}
-      <div className="fixed bottom-6 left-6 right-6 flex justify-between pointer-events-none">
+      <div className="fixed bottom-6 left-6 right-6 flex flex-col sm:flex-row gap-3 sm:justify-between pointer-events-none">
         <button
           onClick={handleCallNow}
           className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full 
-                     shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
-                     flex items-center space-x-2 pointer-events-auto"
+               shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
+               flex items-center justify-center space-x-2 pointer-events-auto w-full sm:w-auto"
         >
           <Phone className="w-5 h-5" />
           <span className="font-semibold">Call Now</span>
@@ -283,8 +336,8 @@ const Home = () => {
         <button
           onClick={handleChatNow}
           className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-full 
-                     shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
-                     flex items-center space-x-2 pointer-events-auto"
+               shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
+               flex items-center justify-center space-x-2 pointer-events-auto w-full sm:w-auto"
         >
           <MessageCircle className="w-5 h-5" />
           <span className="font-semibold">Chat Now</span>
