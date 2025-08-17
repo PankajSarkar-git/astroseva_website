@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const validatePhone = (phone: string) => /^[6-9]\d{9}$/.test(phone.trim());
-
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -64,7 +63,12 @@ export default function LoginPage() {
       const response = await dispatch(loginUserPassword(payload)).unwrap();
       console.log(response, "----response");
       if (response.success) {
-        router.push("/");
+        console.log(response, "---login response");
+        // WebSocket.init(userId, websocketUrl)
+        //   .connect()
+        //   .then(() => console.log("Connected to WebSocket!"))
+        //   .catch((err) => console.error("WebSocket connection failed:", err));
+        router.push("/home");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -72,6 +76,12 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     router.replace("/home");
+  //   }
+  // }, [isAuthenticated, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 flex items-center justify-center p-4">
