@@ -20,6 +20,7 @@ import QuickNavigation from "./quick-navigation";
 import AstrologerCard from "./astrologer-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 // Mock data for demonstration
 const introCardData = [
@@ -104,6 +105,7 @@ const Home = () => {
   const [onlineAstrologers, setOnlineAstrologers] = useState(
     introCardData.filter((a) => a.online)
   );
+  const router = useRouter();
 
   // Simulate loading states
   useEffect(() => {
@@ -121,6 +123,7 @@ const Home = () => {
   const handleSearchSubmit = () => {
     console.log("Navigating to Astrologers with search:", search);
     // Navigate to Astrologers page
+    router.push(`/astrologers?search=${encodeURIComponent(search)}`);
   };
 
   const handleQuickNavigation = (nav: string) => {
@@ -163,7 +166,7 @@ const Home = () => {
           />
           <Button
             className="h-10 rounded-full bg-white text-black border border-white cursor-pointer hover:bg-white hover:border-surface-primary-surface"
-            onClick={() => {}}
+            onClick={handleSearchSubmit}
           >
             Search
           </Button>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AstrologerCard from "./astrologer-card";
 import TagSelector from "@/components/common/tag";
 import { useAppDispatch, useAppSelector } from "@/lib/hook/redux-hook";
@@ -53,8 +53,11 @@ type AstrologersRouteParams = {
 
 const Astrologers: React.FC = () => {
   const router = useRouter();
-  const params = useParams();
-  const [search, setSearch] = useState(params?.initialSearch ?? "");
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search");
+  const sort = searchParams.get("sort");
+  console.log(initialSearch);
+  const [search, setSearch] = useState(initialSearch ? initialSearch : "");
   const debouncedSearch = useDebounce(search, 500);
   const [selected, setSelected] = useState<string[]>(["all"]);
   const [selectedAstrologer, setSelectedAstrologer] =
@@ -106,7 +109,7 @@ const Astrologers: React.FC = () => {
 
       const payload = await dispatch(
         getAllAstrologers(
-          `?page=${pageNumber}&search=${search}&sort=${params?.sort ?? ""}`
+          `?page=${pageNumber}&search=${search}&sort=${sort ?? ""}`
         )
       ).unwrap();
 
@@ -205,7 +208,7 @@ const Astrologers: React.FC = () => {
       ws.send("/app/online.user");
     }
     fetchAstrologersData(1, false, debouncedSearch as string);
-  }, [debouncedSearch, params?.sort, user?.id]);
+  }, [debouncedSearch, sort, user?.id]);
 
   useEffect(() => {
     setPage(1);
@@ -250,8 +253,20 @@ const Astrologers: React.FC = () => {
           <Input
             className="bg-white rounded-full h-10"
             leftIcon={<SearchIcon className="h-4 w-4" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={search ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearch(value); // Update query string
+              const params = new URLSearchParams(window.location.search);
+              if (value) {
+                params.set("search", value);
+              } else {
+                params.delete("search");
+              }
+
+              // Push new URL with updated query
+              router.push(`?${params.toString()}`);
+            }}
             placeholder="Search here for pandits"
           />
         </div>
