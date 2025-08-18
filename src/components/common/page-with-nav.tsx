@@ -29,7 +29,7 @@ function PageWithNav({ children }: { children: React.ReactNode }) {
     }
   };
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-screen overflow-x-hidden">
       <div className="fixed w-full top-0 z-[50]">
         <Navbar />
       </div>

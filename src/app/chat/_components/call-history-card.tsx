@@ -1,3 +1,4 @@
+"user client";
 import React from "react";
 import { CallSession } from "@/lib/utils/types";
 import { formatedDate, formatRelativeDate } from "@/lib/utils/utils";

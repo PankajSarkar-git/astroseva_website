@@ -2,12 +2,9 @@
 import React, { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Phone, Video, MessageSquare, Star } from "lucide-react";
-
 import { useAppSelector } from "@/lib/hook/redux-hook";
-import { toast } from "react-hot-toast";
 import { formatPrice } from "@/lib/utils/utils";
 import { WebSocket } from "@/lib/services/socket-service-new";
 import { showToast } from "@/components/common/toast";

@@ -21,15 +21,14 @@ import { getTransactionHistory } from "../store/reducer/payment";
 import { showToast } from "@/components/common/toast";
 import { WebSocket } from "../services/socket-service-new";
 
-export const useSessionEvents = (userId: string = "") => {
+export const useSessionEvents = (userId: string = "", role: string = "") => {
   const dispatch = useAppDispatch();
-  const role = useUserRole();
   const subscriptionsRef = useRef<string[]>([]);
 
   const getTransactionDetails = useCallback(async () => {
     try {
       const payload = await dispatch(
-        getTransactionHistory({ userId: userId, query: `?page=1` })
+        getTransactionHistory({ userId, query: `?page=1` })
       ).unwrap();
 
       if (payload.success) {
@@ -42,6 +41,14 @@ export const useSessionEvents = (userId: string = "") => {
     }
   }, [dispatch, userId]);
 
+  const unsubscribeFromSessionEvents = useCallback(() => {
+    const ws = WebSocket.get();
+    subscriptionsRef.current.forEach((dest) => {
+      ws.unsubscribe(dest);
+    });
+    subscriptionsRef.current = [];
+  }, []);
+
   const subscribeToSessionEvents = useCallback(() => {
     if (!userId) return;
 
@@ -49,7 +56,6 @@ export const useSessionEvents = (userId: string = "") => {
 
     const queueDest = `/topic/queue/${userId}`;
     const requestDest = `/topic/chat/${userId}/chatId`;
-
     const onlineAstroDest = `/topic/online/astrologer`;
     const activeSessionDest = `/topic/session/${userId}`;
     const onlineAstrologerDest = "/topic/online/astrologer/list";
@@ -77,7 +83,7 @@ export const useSessionEvents = (userId: string = "") => {
     ws.subscribe(requestDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
-        setIsWaiting(false);
+        dispatch(setIsWaiting(false));
         dispatch(setActiveSession(data));
         dispatch(setSession(data));
         getTransactionDetails();
@@ -117,15 +123,13 @@ export const useSessionEvents = (userId: string = "") => {
         console.log("Failed to parse active session data:", err);
       }
     });
-  }, [dispatch, getTransactionDetails, role, userId]);
-
-  const unsubscribeFromSessionEvents = useCallback(() => {
-    const ws = WebSocket.get();
-    subscriptionsRef.current.forEach((dest) => {
-      ws.unsubscribe(dest);
-    });
-    subscriptionsRef.current = [];
-  }, []);
+  }, [
+    dispatch,
+    getTransactionDetails,
+    unsubscribeFromSessionEvents,
+    role,
+    userId,
+  ]);
 
   return {
     subscribeToSessionEvents,

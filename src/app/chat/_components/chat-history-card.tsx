@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { ChatSession } from "@/lib/utils/types";
 import { formatedDate, formatRelativeDate } from "@/lib/utils/utils";
@@ -27,7 +28,7 @@ const ChatHistoryCard: React.FC<ChatHistoryCardProps> = ({ data, active }) => {
             className="w-[55px] h-[55px] rounded-full border-2 border-muted object-cover"
           />
         ) : (
-          <div className="w-[55px] h-[55px] rounded-full border-2 border-muted bg-muted flex items-center justify-center text-lg font-semibold text-white">
+          <div className="w-[55px] h-[55px] rounded-full border-2 border-muted bg-muted flex items-center justify-center text-lg font-semibold text-text-secondary">
             {otherUser.name.charAt(0)}
           </div>
         )}

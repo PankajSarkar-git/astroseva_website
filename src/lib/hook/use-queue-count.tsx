@@ -4,35 +4,34 @@ import {
   getQueueRequest,
   setQueueCount,
   toggleCountRefresh,
-} from "../store/reducer/session"; // <-- your count action
+} from "../store/reducer/session";
 import { showToast } from "@/components/common/toast";
 
 export const useQueueCountOnResume = (
   isAuthenticated: boolean,
   role: string
 ) => {
-  if (role !== "ASTROLOGER") return;
   const dispatch = useAppDispatch();
   const { countRefresh } = useAppSelector((state) => state.session);
 
-  const fetchQueueCount = async () => {
-    try {
-      const payload = await dispatch(getQueueRequest()).unwrap();
-      if (payload.success) {
-        dispatch(setQueueCount(payload?.users.length));
-      } else {
-        showToast.error("Something went wrong! try again");
-      }
-    } catch (err) {
-    } finally {
-      dispatch(toggleCountRefresh());
-    }
-  };
-
   useEffect(() => {
-    if (!isAuthenticated) return;
-    if (countRefresh) {
-      fetchQueueCount();
-    }
-  }, [isAuthenticated, countRefresh]);
+    if (!isAuthenticated || role !== "ASTROLOGER" || !countRefresh) return;
+
+    const fetchQueueCount = async () => {
+      try {
+        const payload = await dispatch(getQueueRequest()).unwrap();
+        if (payload.success) {
+          dispatch(setQueueCount(payload?.users?.length));
+        } else {
+          showToast.error("Something went wrong! Try again.");
+        }
+      } catch (err) {
+        console.error("Queue fetch failed:", err);
+      } finally {
+        dispatch(toggleCountRefresh());
+      }
+    };
+
+    fetchQueueCount();
+  }, [isAuthenticated, countRefresh, role, dispatch]);
 };

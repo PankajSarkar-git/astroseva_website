@@ -1,248 +1,10 @@
-// "use client";
-
-// import React, { useEffect, useRef, useState } from "react";
-// import { useInView } from "react-intersection-observer";
-// import { getChatHistory } from "@/lib/store/reducer/session";
-// import { useUserRole } from "@/lib/hook/use-role";
-// import { ChatSession, UserDetail } from "@/lib/utils/types";
-// import { useAppDispatch } from "@/lib/hook/redux-hook";
-// import { setOtherUser, setSession } from "@/lib/store/reducer/session";
-// import { Loader2, MessageCircle, User } from "lucide-react";
-// import ChatHistoryCard from "./_components/chat-history-card";
-// import PageWithNav from "@/components/common/page-with-nav";
-// import FullScreenLoader from "@/components/full-screen-loader";
-
-// // Mock chat component - replace with your actual chat component
-// const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
-//   session,
-//   otherUser,
-// }) => {
-//   return (
-//     <div className="flex flex-col h-full">
-//       {/* Chat Header */}
-//       <div className="border-b border-gray-200 p-4 bg-white">
-//         <div className="flex items-center gap-3">
-//           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-//             {otherUser.profileImage ? (
-//               <img
-//                 src={otherUser.profileImage}
-//                 alt={otherUser.name}
-//                 className="w-10 h-10 rounded-full object-cover"
-//               />
-//             ) : (
-//               <User className="w-5 h-5 text-gray-500" />
-//             )}
-//           </div>
-//           <div>
-//             <h3 className="font-semibold text-gray-900">{otherUser.name}</h3>
-//             <p className="text-sm text-gray-500">
-//               {session.status === "ACTIVE" ? "Online" : "Offline"}
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Chat Messages Area */}
-//       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-//         <div className="text-center text-gray-500">
-//           <MessageCircle className="w-8 h-8 mx-auto mb-2" />
-//           <p>Chat with {otherUser.name}</p>
-//           <p className="text-sm">Session ID: {session.id}</p>
-//         </div>
-//       </div>
-
-//       {/* Chat Input Area */}
-//       <div className="border-t border-gray-200 p-4 bg-white">
-//         <div className="flex gap-2">
-//           <input
-//             type="text"
-//             placeholder="Type your message..."
-//             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           />
-//           <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-//             Send
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Empty state component
-// const EmptyState: React.FC = () => {
-//   return (
-//     <div className="flex flex-col items-center justify-center h-full text-gray-500">
-//       <MessageCircle className="w-16 h-16 mb-4" />
-//       <h3 className="text-xl font-semibold mb-2">
-//         Select a chat to start messaging
-//       </h3>
-//       <p className="text-center max-w-md">
-//         Choose a conversation from the left sidebar to view and continue your
-//         chat history.
-//       </p>
-//     </div>
-//   );
-// };
-
-// // No chats available state
-// const NoChatsState: React.FC = () => {
-//   return (
-//     <div className="flex flex-col items-center justify-center h-full text-gray-500">
-//       <MessageCircle className="w-16 h-16 mb-4" />
-//       <h3 className="text-xl font-semibold mb-2">No chats yet</h3>
-//       <p className="text-center max-w-md">
-//         Start your first conversation to see your chat history here.
-//       </p>
-//     </div>
-//   );
-// };
-
-// const ChatHistory: React.FC = () => {
-//   const [messageItems, setMessageItems] = useState<ChatSession[]>([]);
-//   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
-//   const [selectedOtherUser, setSelectedOtherUser] = useState<UserDetail | null>(
-//     null
-//   );
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [loading, setLoading] = useState(false);
-//   const [hasMore, setHasMore] = useState(true);
-//   const [initialLoadDone, setInitialLoadDone] = useState(false);
-//   const role = useUserRole();
-//   const dispatch = useAppDispatch();
-
-//   const { ref, inView } = useInView({
-//     threshold: 0.3,
-//     triggerOnce: false,
-//   });
-
-//   const fetchChatHistory = async (page = 1) => {
-//     if (loading || !hasMore) return;
-//     setLoading(true);
-//     try {
-//       const payload = await dispatch(
-//         getChatHistory(`?page=${page}&limit=15`)
-//       ).unwrap();
-//       if (payload.success) {
-//         setMessageItems((prev) => [...prev, ...payload.chatHistory]);
-//         setCurrentPage(payload.currentPage);
-//         setHasMore(!payload.isLastPage);
-//         if (page === 1) setInitialLoadDone(true);
-//       } else {
-//         setMessageItems([]);
-//       }
-//     } catch (e) {
-//       // handle error
-//       console.error("Failed to fetch chat history:", e);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchChatHistory();
-//   }, []);
-
-//   useEffect(() => {
-//     if (inView && hasMore && !loading && initialLoadDone) {
-//       fetchChatHistory(currentPage + 1);
-//     }
-//   }, [inView]);
-
-//   const handleChatSelect = (item: ChatSession) => {
-//     const otherUser: UserDetail = role === "USER" ? item.astrologer : item.user;
-//     setSelectedChat(item);
-//     setSelectedOtherUser(otherUser);
-//     dispatch(setOtherUser(otherUser));
-//     dispatch(setSession(item));
-//   };
-
-//   const renderChatList = () => (
-//     <div className="space-y-2">
-//       {messageItems.map((item, index) => {
-//         const otherUser: UserDetail =
-//           role === "USER" ? item.astrologer : item.user;
-//         const isSelected = selectedChat?.id === item.id;
-
-//         return (
-//           <div
-//             key={`${item.id}-${index}`}
-//             onClick={() => handleChatSelect(item)}
-//             className={`cursor-pointer transition-all duration-200 rounded-lg ${
-//               isSelected
-//                 ? "bg-blue-50 border-l-4 border-l-blue-500"
-//                 : "hover:bg-gray-50"
-//             }`}
-//           >
-//             <ChatHistoryCard data={item} active={item.status === "ACTIVE"} />
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-
-//   if (loading && !initialLoadDone) {
-//     return <FullScreenLoader />;
-//   }
-
-//   return (
-//     <PageWithNav>
-//       <div className="flex h-screen pt-16">
-//         {/* Left Sidebar - Chat List */}
-//         <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
-//           {/* Header */}
-//           <div className="p-4 border-b border-gray-200">
-//             <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
-//             <p className="text-sm text-gray-500">
-//               {messageItems.length} conversation
-//               {messageItems.length !== 1 ? "s" : ""}
-//             </p>
-//           </div>
-
-//           {/* Chat List */}
-//           <div className="flex-1 overflow-y-auto p-4">
-//             {messageItems.length === 0 && initialLoadDone ? (
-//               <div className="flex flex-col items-center justify-center h-full text-gray-500">
-//                 <MessageCircle className="w-12 h-12 mb-3" />
-//                 <p className="text-center">No conversations yet</p>
-//               </div>
-//             ) : (
-//               <>
-//                 {renderChatList()}
-//                 {loading && (
-//                   <div className="flex justify-center py-4">
-//                     <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-//                   </div>
-//                 )}
-//                 {/* Infinite Scroll Trigger */}
-//                 <div ref={ref} className="h-10" />
-//               </>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* Right Side - Chat View */}
-//         <div className="flex-1 bg-gray-50">
-//           {messageItems.length === 0 && initialLoadDone ? (
-//             <NoChatsState />
-//           ) : selectedChat && selectedOtherUser ? (
-//             <ChatView session={selectedChat} otherUser={selectedOtherUser} />
-//           ) : (
-//             <EmptyState />
-//           )}
-//         </div>
-//       </div>
-//     </PageWithNav>
-//   );
-// };
-
-// export default ChatHistory;
-
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import {
   addMessage,
+  clearActiveSession,
   getChatHistory,
   getChatMessages,
   prependMessages,
@@ -257,14 +19,23 @@ import ChatHistoryCard from "./_components/chat-history-card";
 import PageWithNav from "@/components/common/page-with-nav";
 import FullScreenLoader from "@/components/full-screen-loader";
 import { uploadImage } from "@/lib/store/reducer/general";
+import { WebSocket } from "@/lib/services/socket-service-new";
+import { showToast } from "@/components/common/toast";
+import { decodeMessageBody } from "@/lib/utils/utils";
+import { StompSubscription } from "@stomp/stompjs";
 
 // Chat component converted from React Native
-const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
-  session,
-  otherUser,
-}) => {
+const ChatView = () => {
   const role = useUserRole();
   const userId = useAppSelector((state) => state.auth.user.id);
+  const session = useAppSelector((state) => state?.session?.session);
+
+  const tempOtherUser = useAppSelector((state) => state.session.otherUser);
+  const otherUser =
+    role === "ASTROLOGER"
+      ? useAppSelector((state) => state.session.session?.user)
+      : useAppSelector((state) => state.session.session?.astrologer);
+  const otherUserId = !session ? tempOtherUser?.id : otherUser?.id;
   const { messages } = useAppSelector((state) => state.session);
   const dispatch = useAppDispatch();
   const [input, setInput] = useState("");
@@ -275,13 +46,23 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
   const [timer, setTimer] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageModalVisible, setImageModalVisible] = useState(false);
-
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const { ref: topRef, inView: isTopInView } = useInView({
+    threshold: 0,
+    triggerOnce: false,
+  });
+  console.log(session, "-----------------sesson in chat screen");
   // WebSocket hooks (assuming you have these converted for web)
   // const { subscribe, send, unsubscribe } = useWebSocket(userId);
+  const ws = WebSocket.get();
+
+  const resetScreen = () => {
+    dispatch(setMessage([]));
+    setCurrentPage(1);
+    setHasMore(true);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -320,53 +101,53 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
   // Handle text input + typing event
   const handleInputChange = (text: string) => {
     setInput(text);
-    if (!session) return;
+    if (!session || !otherUser) return;
 
     // Send typing indicator via WebSocket
-    // send(
-    //   `/app/chat.typing`,
-    //   {},
-    //   JSON.stringify({
-    //     senderId: userId,
-    //     receiverId: otherUser.id,
-    //     sessionId: session.id,
-    //     typing: true,
-    //   }),
-    // );
+    ws.send(
+      `/app/chat.typing`,
+      {},
+      JSON.stringify({
+        senderId: userId,
+        receiverId: otherUser.id,
+        sessionId: session.id,
+        typing: true,
+      })
+    );
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      // send(
-      //   `/app/chat.typing`,
-      //   {},
-      //   JSON.stringify({
-      //     senderId: userId,
-      //     receiverId: otherUser.id,
-      //     sessionId: session.id,
-      //     typing: false,
-      //   }),
-      // );
+      ws.send(
+        `/app/chat.typing`,
+        {},
+        JSON.stringify({
+          senderId: userId,
+          receiverId: otherUser.id,
+          sessionId: session.id,
+          typing: false,
+        })
+      );
       typingTimeoutRef.current = null;
     }, 1500);
   };
 
   const handleSend = () => {
     if (!input.trim()) return;
-    if (session?.status !== "ACTIVE" || !session || !otherUser?.id) return;
+    if (!session || session.status !== "ACTIVE" || !otherUserId) return;
 
     const newMsg = {
       senderId: userId,
-      receiverId: otherUser.id,
+      receiverId: otherUserId,
       sessionId: session.id,
       message: input.trim(),
       type: "TEXT",
       timestamp: new Date(),
     };
 
-    // send(`/app/chat.send`, {}, JSON.stringify(newMsg));
+    ws.send(`/app/chat.send`, {}, JSON.stringify(newMsg));
     dispatch(addMessage(newMsg));
     setInput("");
 
@@ -398,7 +179,7 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
           type: "IMAGE",
           timestamp: new Date(),
         };
-        // send('/app/chat.send', {}, JSON.stringify(newMsg));
+        ws.send("/app/chat.send", {}, JSON.stringify(newMsg));
         dispatch(addMessage(newMsg));
       }
     } catch (error) {
@@ -416,6 +197,85 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+  const messageSubDest = `/topic/chat/${userId}/messages`;
+  const typingSubDest = `/topic/chat/${userId}/typing`;
+  const timerSubDest = `/topic/chat/${session?.id}/timer`;
+  const chatEndDest = `/topic/chat/${session?.id}`;
+
+  useEffect(() => {
+    let chatTimerSub: StompSubscription | undefined;
+    let chatEndSub: StompSubscription | undefined;
+    let chatMessage: StompSubscription | undefined;
+    let typingSub: StompSubscription | undefined;
+
+    if (session && session.status !== "ENDED") {
+      chatMessage = ws.subscribe(messageSubDest, (msg) => {
+        try {
+          const data = JSON.parse(decodeMessageBody(msg));
+          dispatch(addMessage(data));
+        } catch (err) {
+          console.error("Failed to parse chat message:", err);
+        }
+      });
+      typingSub = ws.subscribe(typingSubDest, (msg) => {
+        try {
+          const data = JSON.parse(decodeMessageBody(msg));
+          if (data.senderId === otherUserId) {
+            setOtherUserTyping(data.typing);
+          }
+          console.log(JSON.parse(decodeMessageBody(msg)));
+        } catch (err) {
+          console.error("Failed to parse chat typing:", err);
+        }
+      });
+      chatTimerSub = ws.subscribe(timerSubDest, (msg) => {
+        try {
+          const data = decodeMessageBody(msg);
+
+          setTimer(data);
+        } catch (err) {
+          console.error("Failed to parse chat message:", err);
+        }
+      });
+      chatEndSub = ws.subscribe(chatEndDest, (msg) => {
+        try {
+          const data = JSON.parse(decodeMessageBody(msg));
+          if (data.status === "ended") {
+            dispatch(
+              setSession({
+                ...session,
+                status: data.status === "ended" ? "ENDED" : "ACTIVE",
+              })
+            );
+            dispatch(clearActiveSession());
+            showToast.info("Session Ended");
+          }
+        } catch (err) {
+          console.error("Failed to parse chat end message:", err);
+        }
+      });
+    }
+
+    return () => {
+      chatTimerSub && ws.unsubscribe(timerSubDest);
+      chatEndSub && ws.unsubscribe(chatEndDest);
+      chatMessage && ws.unsubscribe(messageSubDest);
+      typingSub && ws.unsubscribe(typingSubDest);
+    };
+  }, [session]);
+
+  useEffect(() => {
+    console.log("this useeffect run");
+    if (!session) return;
+    resetScreen();
+    getChatMessagesDetails(1);
+  }, [session]);
+
+  useEffect(() => {
+    if (isTopInView && hasMore && !loading && session) {
+      getChatMessagesDetails(currentPage + 1);
+    }
+  }, [isTopInView]);
 
   const renderMessage = (message: any, index: number) => {
     const isMine = message.senderId === userId;
@@ -471,31 +331,31 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Chat Header */}
-      <div className="border-b border-gray-200 p-4 bg-white">
+      <div className="border-b border-gray-200 p-4 bg-white flex justify-between">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-              {otherUser.imgUri ? (
+              {otherUser?.imgUri ? (
                 <img
-                  src={otherUser.imgUri}
-                  alt={otherUser.name}
+                  src={otherUser?.imgUri}
+                  alt={otherUser?.name}
                   className="w-12 h-12 object-cover"
                 />
               ) : (
                 <span className="text-lg font-semibold text-gray-600">
-                  {otherUser.name?.charAt(0)?.toUpperCase()}
+                  {otherUser?.name?.charAt(0)?.toUpperCase()}
                 </span>
               )}
             </div>
             {/* Online status indicator */}
             <div
               className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
-                session.status === "ACTIVE" ? "bg-green-500" : "bg-red-500"
+                session?.status === "ACTIVE" ? "bg-green-500" : "bg-red-500"
               }`}
             />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{otherUser.name}</h3>
+            <h3 className="font-semibold text-gray-900">{otherUser?.name}</h3>
             <p
               className={`text-sm transition-opacity ${
                 otherUserTyping
@@ -544,7 +404,17 @@ const ChatView: React.FC<{ session: ChatSession; otherUser: UserDetail }> = ({
             </div>
           )}
 
-          {messages.map((message, index) => renderMessage(message, index))}
+          {messages.map((message, index) => {
+            const isFirstMessage = index === 0;
+            return (
+              <div
+                key={`${message.timestamp}-${index}`}
+                ref={isFirstMessage ? topRef : null}
+              >
+                {renderMessage(message, index)}
+              </div>
+            );
+          })}
 
           {/* Scroll anchor */}
           <div ref={messagesEndRef} />
@@ -723,32 +593,20 @@ const NoChatsState: React.FC = () => {
 
 const ChatHistory: React.FC = () => {
   const [messageItems, setMessageItems] = useState<ChatSession[]>([]);
-  const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
-  const [selectedOtherUser, setSelectedOtherUser] = useState<UserDetail | null>(
-    null
-  );
+
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
-  const { isWaiting } = useAppSelector((state) => state.session);
+  const { isWaiting, session } = useAppSelector((state) => state.session);
   const role = useUserRole();
+
   const dispatch = useAppDispatch();
 
   const { ref, inView } = useInView({
     threshold: 0.3,
     triggerOnce: false,
   });
-
-  if (isWaiting) {
-    return (
-      <PageWithNav>
-        <div className="pt-20 min-h-screen flex justify-center items-center">
-          <h1 className="font-semibold text-text-secondary">Waiting...</h1>
-        </div>
-      </PageWithNav>
-    );
-  }
 
   const fetchChatHistory = async (page = 1) => {
     if (loading || !hasMore) return;
@@ -758,7 +616,13 @@ const ChatHistory: React.FC = () => {
         getChatHistory(`?page=${page}&limit=15`)
       ).unwrap();
       if (payload.success) {
-        setMessageItems((prev) => [...prev, ...payload.chatHistory]);
+        const updatedItems =
+          page === 1
+            ? payload.chatHistory
+            : [...messageItems, ...payload.chatHistory];
+
+        setMessageItems(updatedItems);
+
         setCurrentPage(payload.currentPage);
         setHasMore(!payload.isLastPage);
         if (page === 1) setInitialLoadDone(true);
@@ -785,9 +649,8 @@ const ChatHistory: React.FC = () => {
 
   const handleChatSelect = (item: ChatSession) => {
     const otherUser: UserDetail = role === "USER" ? item.astrologer : item.user;
-    setSelectedChat(item);
-    setSelectedOtherUser(otherUser);
     dispatch(setOtherUser(otherUser));
+    console.log(item, "-----------session changing to this");
     dispatch(setSession(item));
   };
 
@@ -796,7 +659,7 @@ const ChatHistory: React.FC = () => {
       {messageItems.map((item, index) => {
         const otherUser: UserDetail =
           role === "USER" ? item.astrologer : item.user;
-        const isSelected = selectedChat?.id === item.id;
+        const isSelected = session?.id === item.id;
 
         return (
           <div
@@ -819,53 +682,61 @@ const ChatHistory: React.FC = () => {
     return <FullScreenLoader />;
   }
 
+  console.log(session, "----session");
+
   return (
     <PageWithNav>
-      <div className="flex h-screen pt-16">
-        {/* Left Sidebar - Chat List */}
-        <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
-            <p className="text-sm text-gray-500">
-              {messageItems.length} conversation
-              {messageItems.length !== 1 ? "s" : ""}
-            </p>
+      {isWaiting ? (
+        <div className="pt-20 min-h-screen flex justify-center items-center">
+          <h1 className="font-semibold text-text-secondary">Waiting...</h1>
+        </div>
+      ) : (
+        <div className="flex h-screen pt-16">
+          {/* Left Sidebar - Chat List */}
+          <div className="w-80 border-r border-gray-200 bg-white flex flex-col">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
+              <p className="text-sm text-gray-500">
+                {messageItems.length} conversation
+                {messageItems.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+
+            {/* Chat List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {messageItems.length === 0 && initialLoadDone ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <MessageCircle className="w-12 h-12 mb-3" />
+                  <p className="text-center">No conversations yet</p>
+                </div>
+              ) : (
+                <>
+                  {renderChatList()}
+                  {loading && (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                    </div>
+                  )}
+                  {/* Infinite Scroll Trigger */}
+                  <div ref={ref} className="h-10" />
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Chat List */}
-          <div className="flex-1 overflow-y-auto p-4">
+          {/* Right Side - Chat View */}
+          <div className="flex-1 bg-gray-50">
             {messageItems.length === 0 && initialLoadDone ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <MessageCircle className="w-12 h-12 mb-3" />
-                <p className="text-center">No conversations yet</p>
-              </div>
+              <NoChatsState />
+            ) : session ? (
+              <ChatView />
             ) : (
-              <>
-                {renderChatList()}
-                {loading && (
-                  <div className="flex justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                  </div>
-                )}
-                {/* Infinite Scroll Trigger */}
-                <div ref={ref} className="h-10" />
-              </>
+              <EmptyState />
             )}
           </div>
         </div>
-
-        {/* Right Side - Chat View */}
-        <div className="flex-1 bg-gray-50">
-          {messageItems.length === 0 && initialLoadDone ? (
-            <NoChatsState />
-          ) : selectedChat && selectedOtherUser ? (
-            <ChatView session={selectedChat} otherUser={selectedOtherUser} />
-          ) : (
-            <EmptyState />
-          )}
-        </div>
-      </div>
+      )}
     </PageWithNav>
   );
 };
