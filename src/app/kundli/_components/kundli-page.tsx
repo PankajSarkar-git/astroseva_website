@@ -129,6 +129,7 @@ export default function Kundli() {
   return (
     <div className="flex flex-col h-full bg-background relative">
       {/* Show button in center if form submitted */}
+      
       {!formSubmitted && (
         <div className="flex flex-col min-h-screen items-center justify-center text-center px-4 py-16 sm:py-24 h-full w-full bg-gradient-to-b from-background to-muted">
           <div className="max-w-2xl">
