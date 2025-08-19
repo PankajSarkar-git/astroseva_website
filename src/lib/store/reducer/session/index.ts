@@ -73,10 +73,10 @@ const sessionSlice = createSlice({
     },
 
     addMessage(state, action: PayloadAction<any>) {
-      state.messages = [action.payload, ...state.messages];
+      state.messages = [...state.messages, action.payload];
     },
     prependMessages(state, action: PayloadAction<Message[]>) {
-      state.messages = [...state.messages, ...action.payload]; // older messages at the start
+      state.messages = [...action.payload, ...state.messages]; // older messages at the start
     },
     clearCallSession(state) {
       state.callSession = null;
