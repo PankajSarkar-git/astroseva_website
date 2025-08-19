@@ -20,6 +20,8 @@ import QuickNavigation from "./quick-navigation";
 import AstrologerCard from "./astrologer-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
 import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { getAllAstrologers } from "@/lib/store/reducer/astrologers";
 import { Astrologers } from "@/lib/utils/types";
@@ -92,6 +94,7 @@ const Home = () => {
   const [onlineAstrologers, setOnlineAstrologers] = useState(
     introCardData.filter((a) => a.online)
   );
+  const router = useRouter();
   const [astrologersData, setAstrologersData] = useState<
     {
       name: string;
@@ -165,6 +168,7 @@ const Home = () => {
   const handleSearchSubmit = () => {
     console.log("Navigating to Astrologers with search:", search);
     // Navigate to Astrologers page
+    router.push(`/astrologers?search=${encodeURIComponent(search)}`);
   };
 
   const handleQuickNavigation = (nav: string) => {
@@ -196,9 +200,9 @@ const Home = () => {
     (a) => a.online === true
   );
   return (
-    <div className="min-h-screen  bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen pt-16 bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
       {/* Header with Search */}
-      <div className="bg-yellow-400 py-8">
+      <div className="bg-surface-primary-surface py-12">
         <div className="container mx-auto max-w-[600px] px-4 flex gap-4">
           <Input
             className="bg-white rounded-full h-10"
@@ -209,7 +213,7 @@ const Home = () => {
           />
           <Button
             className="h-10 rounded-full bg-white text-black border border-white cursor-pointer hover:bg-white hover:border-surface-primary-surface"
-            onClick={() => {}}
+            onClick={handleSearchSubmit}
           >
             Search
           </Button>

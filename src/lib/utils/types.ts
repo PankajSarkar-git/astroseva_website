@@ -182,6 +182,7 @@ export interface CallSession {
 }
 
 export interface SessionState {
+  isWaiting: boolean;
   activeSession: ChatSession | null;
   session: ChatSession | null;
   callSession: CallSession | null;

@@ -15,6 +15,8 @@ import {
 } from "../store/reducer/auth";
 import FullScreenLoader from "@/components/full-screen-loader";
 import { useSessionEvents } from "../hook/use-session-events";
+import { useQueueCountOnResume } from "../hook/use-queue-count";
+import { useUserRole } from "../hook/use-role";
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 
@@ -29,11 +31,15 @@ export default function ProtectedRoute({
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  const role = useUserRole(); // ✅ top-level hook call only
+  useQueueCountOnResume(isAuthenticated, role); // ✅ call unconditionally
+  const { subscribeToSessionEvents, unsubscribeFromSessionEvents } =
+    useSessionEvents(user.id, role);
+
   const websocketUrl = "https://backend.astrosevaa.com/ws-chat";
 
-  const { subscribeToSessionEvents, unsubscribeFromSessionEvents } =
-    useSessionEvents(user.id);
-
+  // STEP 1: Check authentication
   useEffect(() => {
     const checkAuth = async () => {
       if (!token) {
@@ -47,8 +53,8 @@ export default function ProtectedRoute({
 
         if (payload?.success) {
           const userDetail: any = payload.user ?? payload.astrologer?.user!;
-
           const astro = payload.astrologer;
+
           const astrologer_detail: any = astro
             ? {
                 id: astro.id ?? "",
@@ -79,20 +85,20 @@ export default function ProtectedRoute({
     };
 
     checkAuth();
-  }, [token, dispatch]);
+  }, [token]);
 
+  // STEP 2: Initialize WebSocket when user is authenticated
   useEffect(() => {
-    if (!user.id) return;
+    if (!user?.id || !isAuthenticated) return;
 
     WebSocket.init(user.id, websocketUrl)
       .connect()
       .then(() => {
-        console.log("WebSocket connected");
-        subscribeToSessionEvents();
         WebSocket.get().send("/app/online.user");
+        subscribeToSessionEvents();
       })
       .catch((err) => {
-        console.error("WebSocket connection failed:", err);
+        console.error("WebSocket connection error:", err);
       });
 
     return () => {
@@ -100,17 +106,16 @@ export default function ProtectedRoute({
       WebSocket.get().disconnect();
       WebSocket.reset();
     };
-  }, [user.id, subscribeToSessionEvents, unsubscribeFromSessionEvents]);
+  }, [isAuthenticated, user?.id ?? ""]);
 
+  // STEP 3: Redirect if not authenticated
   useEffect(() => {
     if (!loading && !isAuthenticated && !PUBLIC_ROUTES.includes(pathname)) {
       router.replace("/login");
     }
   }, [loading, isAuthenticated, pathname, router]);
 
-  if (loading) {
-    return <FullScreenLoader />;
-  }
+  if (loading) return <FullScreenLoader />;
 
   return children;
 }
