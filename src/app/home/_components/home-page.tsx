@@ -24,49 +24,6 @@ import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { getAllAstrologers } from "@/lib/store/reducer/astrologers";
 import { Astrologers } from "@/lib/utils/types";
 import { getBanner } from "@/lib/store/reducer/general";
-// Mock data for demonstration
-const introCardData = [
-  {
-    id: 1,
-    name: "Pt. Raveena Tandon",
-    rate: "10 Rs / Min",
-    avatar: "https://i.pravatar.cc/300?img=9",
-    specialty: "Specialist in Vedic Gyan",
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Acharya Ved Prakash",
-    rate: "12 Rs / Min",
-    avatar: "https://i.pravatar.cc/300?img=8",
-    specialty: "Expert in Love & Marriage Solutions",
-    online: true,
-  },
-  {
-    id: 3,
-    name: "Guru Anand Joshi",
-    rate: "15 Rs / Min",
-    avatar: "https://i.pravatar.cc/300?img=7",
-    specialty: "Career & Finance Consultant",
-    online: false,
-  },
-  {
-    id: 4,
-    name: "Mata Sushila Devi",
-    rate: "8 Rs / Min",
-    avatar: "https://i.pravatar.cc/300?img=6",
-    specialty: "Spiritual & Reiki Healer",
-    online: false,
-  },
-  {
-    id: 6,
-    name: "Rushila Devi",
-    rate: "8 Rs / Min",
-    avatar: "https://i.pravatar.cc/300?img=6",
-    specialty: "Spiritual & Reiki Healer",
-    online: true,
-  },
-];
 // Shimmer/Skeleton component
 const SkeletonItem = ({ className = "" }) => (
   <div
@@ -89,9 +46,7 @@ const Home = () => {
     onlineAstrologer: false,
   });
   const [banner, setBanner] = useState<{ imgUrl: string; id: string }[]>([]);
-  const [onlineAstrologers, setOnlineAstrologers] = useState(
-    introCardData.filter((a) => a.online)
-  );
+  const [onlineAstrologers, setOnlineAstrologers] = useState([]);
   const [astrologersData, setAstrologersData] = useState<
     {
       name: string;
