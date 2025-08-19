@@ -1,7 +1,7 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
+import { RootState } from "../store/root-reducer";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WebSocket } from "../services/socket-service-new";
