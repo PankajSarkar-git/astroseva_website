@@ -3,7 +3,7 @@
 import * as React from "react";
 import { motion, useAnimation } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils/utils";
 import { Search } from "lucide-react";
 
 interface AnimatedSearchInputProps
