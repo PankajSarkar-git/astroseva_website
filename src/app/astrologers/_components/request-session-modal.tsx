@@ -1,16 +1,19 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CustomModal from "@/components/common/modal";
 
 import { useAppDispatch, useAppSelector } from "@/lib/hook/redux-hook";
 import {
-  sendCallRequest,
   sendSessionRequest,
+  setIsWaiting,
   setOtherUser,
 } from "@/lib/store/reducer/session";
 import { UserDetail } from "@/lib/utils/types";
 import { toast } from "react-hot-toast";
-import { MessageCircle, Phone, Video } from "lucide-react";
+import { CheckIcon, MessageCircle, Phone, Video } from "lucide-react";
+import { showToast } from "@/components/common/toast";
+import { Button } from "@/components/ui/button";
 
 type SessionType = "chat" | "audio" | "video";
 
@@ -49,6 +52,7 @@ const RequestSessionModal = ({
 }) => {
   const durationOptions: DurationOption[] = [
     { label: "5 min", id: "5m", value: 5 },
+    { label: "2 min", id: "2m", value: 2 },
     { label: "10 min", id: "10m", value: 10 },
     { label: "15 min", id: "15m", value: 15 },
     { label: "30 min", id: "30m", value: 30 },
@@ -132,10 +136,6 @@ const RequestSessionModal = ({
     setSelectedDuration(duration);
   };
 
-  const handleSessionTypeSelect = (type: SessionType) => {
-    setSelectedSessionType(type);
-  };
-
   const requestSession = async () => {
     if (!selectedDuration || !astrologer || !hasSufficientBalance) {
       const message = !selectedDuration
@@ -161,31 +161,17 @@ const RequestSessionModal = ({
       if (selectedSessionType === "chat") {
         payload = await dispatch(sendSessionRequest(body)).unwrap();
       } else {
-        payload = await dispatch(sendCallRequest(body)).unwrap();
+        router.push("/applink");
+        return;
       }
 
       if (payload.success) {
         dispatch(setOtherUser(astrologer));
         onClose();
-
-        if (selectedSessionType === "chat") {
-          router.push("/chat");
-        } else {
-          router.push({
-            pathname: "/call",
-            query: {
-              callType: selectedSessionType?.toUpperCase(),
-              astrologerId: astrologer.id,
-              astrologerName: astrologer.name,
-              duration: selectedDuration.value,
-              sessionId: payload.sessionId || `session_${Date.now()}`,
-            },
-          });
-        }
+        dispatch(setIsWaiting(true));
+        router.push("/chat");
       }
     } catch (err) {
-      console.log("sendSessionRequest Error : ", err);
-      toast.error("Failed to start session. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -281,16 +267,15 @@ const RequestSessionModal = ({
             </div>
           )}
 
-          <CustomButton
-            title={loading ? "Starting Session..." : "Start Session"}
-            onPress={requestSession}
-            disabled={!canProceed}
-            loading={loading}
-            className={`rounded-full py-3.5 ${
+          <Button
+            onClick={requestSession}
+            disabled={!canProceed || loading}
+            className={`w-full rounded-full py-3.5 text-white font-montserrat text-sm ${
               canProceed ? "bg-green-600 hover:bg-green-700" : "bg-gray-400"
             } transition-colors duration-200`}
-            textClassName="text-white font-montserrat"
-          />
+          >
+            {loading ? "Starting Session..." : "Start Session"}
+          </Button>
         </div>
       }
     >

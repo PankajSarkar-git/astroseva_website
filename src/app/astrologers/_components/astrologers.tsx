@@ -1,6 +1,6 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import AstrologerCard from "./astrologer-card";
 import TagSelector from "@/components/common/tag";
 import { useAppDispatch, useAppSelector } from "@/lib/hook/redux-hook";
@@ -14,6 +14,7 @@ import { shuffleArray } from "@/lib/utils/utils";
 import { Astrologers as AstrologersType, UserDetail } from "@/lib/utils/types";
 import {
   sendSessionRequest,
+  setIsWaiting,
   setOtherUser,
   setSession,
 } from "@/lib/store/reducer/session";
@@ -21,7 +22,8 @@ import { useDebounce } from "@/lib/hook/use-debounce";
 import { toast } from "react-hot-toast";
 // import { useWebSocket } from "../hooks/use-socket-new";
 import { Input } from "@/components/ui/input";
-import { SearchIcon } from "lucide-react";
+import { Loader2Icon, SearchIcon } from "lucide-react";
+import { WebSocket } from "@/lib/services/socket-service-new";
 
 type SessionType = "chat" | "audio" | "video";
 
@@ -51,8 +53,11 @@ type AstrologersRouteParams = {
 
 const Astrologers: React.FC = () => {
   const router = useRouter();
-  const params = useParams();
-  const [search, setSearch] = useState(params?.initialSearch ?? "");
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search");
+  const sort = searchParams.get("sort");
+  console.log(initialSearch);
+  const [search, setSearch] = useState(initialSearch ? initialSearch : "");
   const debouncedSearch = useDebounce(search, 500);
   const [selected, setSelected] = useState<string[]>(["all"]);
   const [selectedAstrologer, setSelectedAstrologer] =
@@ -88,6 +93,7 @@ const Astrologers: React.FC = () => {
     },
     [loading, hasMore, page]
   );
+  const ws = WebSocket.get();
   // const { send } = useWebSocket(user.id);
 
   const fetchAstrologersData = async (
@@ -103,7 +109,7 @@ const Astrologers: React.FC = () => {
 
       const payload = await dispatch(
         getAllAstrologers(
-          `?page=${pageNumber}&search=${search}&sort=${params?.sort ?? ""}`
+          `?page=${pageNumber}&search=${search}&sort=${sort ?? ""}`
         )
       ).unwrap();
 
@@ -139,6 +145,7 @@ const Astrologers: React.FC = () => {
           dispatch(setFreeChatUsed());
         }
         dispatch(setOtherUser(astrologer));
+        dispatch(setIsWaiting(true));
         router.push("/chat");
       } else {
         toast.error("Failed to send request");
@@ -153,6 +160,8 @@ const Astrologers: React.FC = () => {
     astrologer: AstrologersType,
     sessionType: SessionType
   ) => {
+    console.log(isProfileComplete, "---profile");
+    console.log(freeChatUsed, "---free chat used");
     if (isProfileComplete) {
       const astrologerWithPricing: AstrologerWithPricing = {
         ...astrologer.user,
@@ -175,12 +184,6 @@ const Astrologers: React.FC = () => {
     }
   };
 
-  const handleLoadMore = () => {
-    if (hasMore && !isFetchingMore && !loading) {
-      fetchAstrologersData(page + 1, true, debouncedSearch as string);
-    }
-  };
-
   const handleAstrologerClick = (astrologerId: string) => {
     router.push(`/details-profile/${astrologerId}`);
   };
@@ -196,16 +199,16 @@ const Astrologers: React.FC = () => {
   }, [selected]);
 
   useEffect(() => {
-    // if (user?.id && send) {
-    //   send(
-    //     "/app/session.active",
-    //     {},
-    //     JSON.stringify({ astrologerId: user?.id })
-    //   );
-    //   send("/app/online.user");
-    // }
+    if (user?.id) {
+      ws.send(
+        "/app/session.active",
+        {},
+        JSON.stringify({ astrologerId: user?.id })
+      );
+      ws.send("/app/online.user");
+    }
     fetchAstrologersData(1, false, debouncedSearch as string);
-  }, [debouncedSearch, params?.sort, user?.id]);
+  }, [debouncedSearch, sort, user?.id]);
 
   useEffect(() => {
     setPage(1);
@@ -231,9 +234,9 @@ const Astrologers: React.FC = () => {
 
   if (loading && astrologersData.length === 0) {
     return (
-      <div className="flex-1 flex justify-center items-center min-h-96">
+      <div className="flex-1 flex justify-center items-center min-h-108">
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <Loader2Icon className="animate-spin duration-700 text-text-tertiary" />
           <p className="mt-4 text-sm font-montserrat">
             Fetching astrologer data
           </p>
@@ -243,22 +246,30 @@ const Astrologers: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex-1">
-      <div className="pt-5">
+    <div className="h-full flex-1 pt-8">
+      <div className="pt-18 pb-6">
         <div className="h-12 w-full bg-secondary-surface absolute top-0 rounded-b-2xl"></div>
         <div className="container mx-auto max-w-[600px] px-4 flex gap-4">
           <Input
             className="bg-white rounded-full h-10"
             leftIcon={<SearchIcon className="h-4 w-4" />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={search ?? ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearch(value); // Update query string
+              const params = new URLSearchParams(window.location.search);
+              if (value) {
+                params.set("search", value);
+              } else {
+                params.delete("search");
+              }
+
+              // Push new URL with updated query
+              router.push(`?${params.toString()}`);
+            }}
             placeholder="Search here for pandits"
           />
         </div>
-      </div>
-
-      <div className="flex justify-center my-2">
-        <div className="h-px w-4/5 bg-primary-border"></div>
       </div>
 
       <TagSelector
@@ -271,7 +282,7 @@ const Astrologers: React.FC = () => {
 
       <div className="flex-1 pb-5 max-w-[1200px] mx-auto">
         {sortedAstrologers.length > 0 ? (
-          <div className="space-y-3 grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
             {sortedAstrologers.map((item, idx) => (
               <div
                 ref={
@@ -298,6 +309,7 @@ const Astrologers: React.FC = () => {
                   imageUri={item?.user?.imgUri}
                   freeChatAvailable={!freeChatUsed}
                   onSessionPress={(sessionType: SessionType) => {
+                    console.log("chat button pressed", item, sessionType);
                     handleSessionStart(item, sessionType);
                   }}
                 />

@@ -1,28 +1,43 @@
-"use client";
+// store.ts
 
 import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // uses localStorage in browser
+import { persistReducer, persistStore } from "redux-persist";
 import rootReducer from "./root-reducer";
 
-// Persist configuration
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from "redux-persist";
+import storage from "./customStorage";
+
 const persistConfig = {
-    key: "root",
-    storage,
-    whitelist: ["auth"],
+  key: "atticbits-hr",
+  storage,
+  whitelist: ["auth", "sidebar"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// ✅ Create the store instance
 export const store = configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: false, // disable for redux-persist
-        }),
+  reducer: persistedReducer,
+  devTools: process.env.NODE_ENV !== "production",
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
+// ✅ Create persistor instance
 export const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// ✅ Types
+export type AppStore = typeof store;
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];
