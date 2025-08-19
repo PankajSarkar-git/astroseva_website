@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <StoreProvider>
           <ProtectedRoute>
-            <div className="h-full min-h-screen w-full relative">
+            <div className="h-full min-h-screen w-full overflow-x-hidden relative">
               {children}
               <Toaster />
             </div>

@@ -652,15 +652,16 @@ export namespace WebSocket {
     return wsServiceInstance;
   }
 
-  export function get(): WebSocketService {
-    if (!wsServiceInstance) {
-      throw new Error("WebSocketService has not been initialized.");
-    }
+  export function get(): WebSocketService | null {
     return wsServiceInstance;
   }
 
   export function reset(): void {
     wsServiceInstance?.disconnect();
     wsServiceInstance = null;
+  }
+
+  export function isInitialized(): boolean {
+    return wsServiceInstance !== null;
   }
 }
