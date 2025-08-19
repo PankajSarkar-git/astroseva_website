@@ -1,0 +1,63 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import api from "@/lib/apis";
+
+type LoginPayload = {
+  mobile: string;
+};
+
+type verifyPayload = {
+  mobile: string;
+  otp: string;
+};
+
+export const loginUser = createAsyncThunk<
+  any, // response type as any
+  LoginPayload, // argument type
+  { rejectValue: any }
+>("auth/login", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await api.post("/api/v1/auth/login", payload);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+});
+
+export const registerUser = createAsyncThunk<
+  any, // response type as any
+  any, // argument type
+  { rejectValue: any }
+>("auth/register-via-password", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await api.post("/api/v1/auth/register", payload);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+});
+
+export const loginUserPassword = createAsyncThunk<
+  any, // response type as any
+  any, // argument type
+  { rejectValue: any }
+>("auth/login-via-password", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await api.post("/api/v1/auth/login-by-password", payload);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+});
+
+export const verifyOtp = createAsyncThunk<
+  any, // response type as any
+  verifyPayload, // argument type
+  { rejectValue: any }
+>("auth/login/verify", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await api.post("/api/v1/auth/verify-otp", payload);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data || error.message);
+  }
+});
