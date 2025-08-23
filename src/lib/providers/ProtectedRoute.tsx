@@ -1,7 +1,4 @@
 "use client";
-
-import { useSelector } from "react-redux";
-import { RootState } from "../store/root-reducer";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WebSocket } from "../services/socket-service-new";
@@ -25,7 +22,7 @@ export default function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token } = useAppSelector((state) => state.auth);
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
