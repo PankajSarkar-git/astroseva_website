@@ -200,12 +200,12 @@ const Astrologers: React.FC = () => {
 
   useEffect(() => {
     if (user?.id) {
-      ws.send(
+      ws?.send(
         "/app/session.active",
         {},
         JSON.stringify({ astrologerId: user?.id })
       );
-      ws.send("/app/online.user");
+      ws?.send("/app/online.user");
     }
     fetchAstrologersData(1, false, debouncedSearch as string);
   }, [debouncedSearch, sort, user?.id]);
