@@ -68,7 +68,7 @@ export default function LoginPage() {
         //   .connect()
         //   .then(() => console.log("Connected to WebSocket!"))
         //   .catch((err) => console.error("WebSocket connection failed:", err));
-        router.push("/home");
+        router.push("/");
       }
     } catch (err) {
       console.error("Login error:", err);

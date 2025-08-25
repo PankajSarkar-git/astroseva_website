@@ -51,7 +51,7 @@ const Navbar = () => {
       id: "home",
       label: "Home",
       icon: Home,
-      href: "/home",
+      href: "/",
       role: ["ASTROLOGER", "USER"],
     },
     {

@@ -15,7 +15,7 @@ import { useSessionEvents } from "../hook/use-session-events";
 import { useQueueCountOnResume } from "../hook/use-queue-count";
 import { useUserRole } from "../hook/use-role";
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register","/"];
 
 export default function ProtectedRoute({
   children,
