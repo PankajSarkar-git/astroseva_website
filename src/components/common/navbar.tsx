@@ -257,7 +257,7 @@ const Navbar = () => {
                 </Button>
               </div>
             </div>) : (
-              <Button title="login" variant={'default'} className="bg-button-primary text-text-secondary"/>
+              <Button onClick={()=> router.push('/login') } title="login" variant={'default'} className="bg-button-primary text-white hover:bg-button-secondary "> <LogOut className="w-5 h-5 mr-3" /> Login</Button>
             )}
           </div>
 

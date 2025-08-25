@@ -6,8 +6,8 @@ import { showToast } from "@/components/common/toast";
 
 // const baseUrl =
 // process.env.BASE_URL || "https://quagga-driving-socially.ngrok-free.app";
-// const baseUrl = 'https://astrosevaa.com';
-const baseUrl = "https://backend.astrosevaa.com";
+const baseUrl = 'https://astrosevaa.com';
+// const baseUrl = "https://backend.astrosevaa.com";
 // const baseUrl =
 //   process.env.BASE_URL || 'https://gorilla-fitting-feline.ngrok-free.app';
 
