@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { registerUser } from "@/lib/store/reducer/auth";
 // import logo from "@/assets/imgs/logo.png";
-// import Image from "next/image";
+import Image from "next/image";
 type FormData = {
   fullName: string;
   phone: string;
@@ -128,11 +128,7 @@ export default function RegisterPage() {
         {/* Logo/Brand Section */}
         <div className="text-center space-y-3">
           <div className="mx-auto w-20 h-20 rounded-full flex items-center justify-center">
-            <img
-              src={'../../../assets/imgs/logo.png'}
-              alt="Logo"
-              className="object-contain"
-            />
+            <Image src='/logo.png' alt="Logo" width={80} height={80} priority />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Astrosevaa</h1>
