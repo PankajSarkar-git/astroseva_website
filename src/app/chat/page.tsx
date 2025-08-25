@@ -104,7 +104,8 @@ const ChatView = () => {
     if (!session || !otherUser) return;
 
     // Send typing indicator via WebSocket
-    ws.send(
+
+    ws?.send(
       `/app/chat.typing`,
       {},
       JSON.stringify({
@@ -120,7 +121,7 @@ const ChatView = () => {
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      ws.send(
+      ws?.send(
         `/app/chat.typing`,
         {},
         JSON.stringify({
@@ -147,7 +148,7 @@ const ChatView = () => {
       timestamp: new Date(),
     };
 
-    ws.send(`/app/chat.send`, {}, JSON.stringify(newMsg));
+    ws?.send(`/app/chat.send`, {}, JSON.stringify(newMsg));
     dispatch(addMessage(newMsg));
     setInput("");
 
@@ -179,7 +180,7 @@ const ChatView = () => {
           type: "IMAGE",
           timestamp: new Date(),
         };
-        ws.send("/app/chat.send", {}, JSON.stringify(newMsg));
+        ws?.send("/app/chat.send", {}, JSON.stringify(newMsg));
         dispatch(addMessage(newMsg));
       }
     } catch (error) {
@@ -209,7 +210,7 @@ const ChatView = () => {
     let typingSub: StompSubscription | undefined;
 
     if (session && session.status !== "ENDED") {
-      chatMessage = ws.subscribe(messageSubDest, (msg) => {
+      chatMessage = ws?.subscribe(messageSubDest, (msg: any) => {
         try {
           const data = JSON.parse(decodeMessageBody(msg));
           dispatch(addMessage(data));
@@ -217,7 +218,7 @@ const ChatView = () => {
           console.error("Failed to parse chat message:", err);
         }
       });
-      typingSub = ws.subscribe(typingSubDest, (msg) => {
+      typingSub = ws?.subscribe(typingSubDest, (msg: any) => {
         try {
           const data = JSON.parse(decodeMessageBody(msg));
           if (data.senderId === otherUserId) {
@@ -228,7 +229,7 @@ const ChatView = () => {
           console.error("Failed to parse chat typing:", err);
         }
       });
-      chatTimerSub = ws.subscribe(timerSubDest, (msg) => {
+      chatTimerSub = ws?.subscribe(timerSubDest, (msg: any) => {
         try {
           const data = decodeMessageBody(msg);
 
@@ -237,7 +238,7 @@ const ChatView = () => {
           console.error("Failed to parse chat message:", err);
         }
       });
-      chatEndSub = ws.subscribe(chatEndDest, (msg) => {
+      chatEndSub = ws?.subscribe(chatEndDest, (msg: any) => {
         try {
           const data = JSON.parse(decodeMessageBody(msg));
           if (data.status === "ended") {
@@ -257,10 +258,10 @@ const ChatView = () => {
     }
 
     return () => {
-      chatTimerSub && ws.unsubscribe(timerSubDest);
-      chatEndSub && ws.unsubscribe(chatEndDest);
-      chatMessage && ws.unsubscribe(messageSubDest);
-      typingSub && ws.unsubscribe(typingSubDest);
+      chatTimerSub && ws?.unsubscribe(timerSubDest);
+      chatEndSub && ws?.unsubscribe(chatEndDest);
+      chatMessage && ws?.unsubscribe(messageSubDest);
+      typingSub && ws?.unsubscribe(typingSubDest);
     };
   }, [session]);
 

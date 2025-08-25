@@ -1,7 +1,4 @@
 "use client";
-
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WebSocket } from "../services/socket-service-new";
@@ -25,7 +22,7 @@ export default function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token } = useAppSelector((state) => state.auth);
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -34,8 +31,8 @@ export default function ProtectedRoute({
 
   const role = useUserRole(); // ✅ top-level hook call only
   useQueueCountOnResume(isAuthenticated, role); // ✅ call unconditionally
-  const { subscribeToSessionEvents, unsubscribeFromSessionEvents } =
-    useSessionEvents(user.id, role);
+
+  useSessionEvents(user.id, isAuthenticated);
 
   const websocketUrl = "https://backend.astrosevaa.com/ws-chat";
 
@@ -89,24 +86,11 @@ export default function ProtectedRoute({
 
   // STEP 2: Initialize WebSocket when user is authenticated
   useEffect(() => {
-    if (!user?.id || !isAuthenticated) return;
-
-    WebSocket.init(user.id, websocketUrl)
-      .connect()
-      .then(() => {
-        WebSocket.get().send("/app/online.user");
-        subscribeToSessionEvents();
-      })
-      .catch((err) => {
-        console.error("WebSocket connection error:", err);
-      });
-
-    return () => {
-      unsubscribeFromSessionEvents();
-      WebSocket.get().disconnect();
-      WebSocket.reset();
-    };
-  }, [isAuthenticated, user?.id ?? ""]);
+    if (user && user.id) {
+      const socket = WebSocket.init(user.id, websocketUrl);
+      socket.connect(); // initiate connection
+    }
+  }, [user?.id]);
 
   // STEP 3: Redirect if not authenticated
   useEffect(() => {
