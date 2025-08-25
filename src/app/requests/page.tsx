@@ -235,7 +235,7 @@ const RequestScreen = () => {
   const [currentPage, setCurrentPage] = useState("requests");
   const [request, setRequest] = useState<RequestType[]>([]);
   const ws = WebSocket.get();
-  const isConnected = ws.isConnected();
+  const isConnected = ws?.isConnected();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const astrologer_detail = useAppSelector((state) => state.auth.user);
@@ -367,7 +367,7 @@ const RequestScreen = () => {
   };
 
   useEffect(() => {
-    ws.send(
+    ws?.send(
       "/app/session.active",
       {},
       JSON.stringify({ astrologerId: user?.id })

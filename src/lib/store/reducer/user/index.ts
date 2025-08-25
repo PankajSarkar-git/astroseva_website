@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  editAstrologerUser,
+  // editAstrologerUser,
   postUserDetail,
   uploadProfileImage,
   userDetail,
@@ -35,11 +35,11 @@ const userSlice = createSlice({
     builder
       .addCase(userDetail.fulfilled, (state, { payload }) => {})
       .addCase(uploadProfileImage.fulfilled, (state, { payload }) => {})
-      .addCase(editAstrologerUser.fulfilled, (state, { payload }) => {})
+      // .addCase(editAstrologerUser.fulfilled, (state, { payload }) => {})
       .addCase(postUserDetail.fulfilled, (state, { payload }) => {});
   },
 });
 
 export const { setInitialUserData } = userSlice.actions;
-export { userDetail, postUserDetail, uploadProfileImage, editAstrologerUser };
+export { userDetail, postUserDetail, uploadProfileImage };
 export default userSlice.reducer;
