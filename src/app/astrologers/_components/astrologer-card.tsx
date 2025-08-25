@@ -59,7 +59,7 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
   const router = useRouter();
 
   const handleSessionPress = (sessionType: SessionType) => {
-    if (!ws.isConnected) {
+    if (!ws?.isConnected) {
       showToast.error("Wait for connection, please.");
       return;
     }
@@ -84,7 +84,7 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
 
   useEffect(() => {
     if (user?.id) {
-      ws.send(
+      ws?.send(
         "/app/session.active",
         {},
         JSON.stringify({ astrologerId: user?.id })
@@ -236,8 +236,8 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
               {freeChatAvailable
                 ? "Free Chat"
                 : formatPrice
-                ? formatPrice(pricePerMinuteChat, "min")
-                : `₹${pricePerMinuteChat}/min`}
+                  ? formatPrice(pricePerMinuteChat, "min")
+                  : `₹${pricePerMinuteChat}/min`}
             </span>
           </Button>
         </div>

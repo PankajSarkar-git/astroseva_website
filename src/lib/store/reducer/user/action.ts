@@ -88,33 +88,33 @@ export const uploadProfileImage = createAsyncThunk<
 //   },
 // );
 
-export const editAstrologerUser = createAsyncThunk(
-  "astrologer/edit",
-  async (
-    { id, astrologerData, imageFile }: EditAstrologerThunkInput,
-    { rejectWithValue }
-  ) => {
-    try {
-      const formData = new FormData();
+// export const editAstrologerUser = createAsyncThunk(
+//   "astrologer/edit",
+//   async (
+//     { id, astrologerData, imageFile }: EditAstrologerThunkInput,
+//     { rejectWithValue }
+//   ) => {
+//     try {
+//       const formData = new FormData();
 
-      formData.append("data", {
-        string: JSON.stringify(astrologerData),
-        name: "data.json",
-        type: "application/json",
-      } as any);
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+//       formData.append("data", {
+//         string: JSON.stringify(astrologerData),
+//         name: "data.json",
+//         type: "application/json",
+//       } as any);
+//       if (imageFile) {
+//         formData.append("image", imageFile);
+//       }
 
-      const response = await api.put(`/api/v1/astrologers/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+//       const response = await api.put(`/api/v1/astrologers/${id}`, formData, {
+//         headers: {
+//           "Content-Type": "multipart/form-data",
+//         },
+//       });
 
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
+//       return response.data;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data || error.message);
+//     }
+//   }
+// );

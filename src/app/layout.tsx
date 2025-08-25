@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import ProtectedRoute from "@/lib/providers/ProtectedRoute";
-import Navbar from "@/components/common/navbar";
 import { Toaster } from "react-hot-toast";
 import StoreProvider from "@/lib/store/store-provider";
+import Providers from "@/lib/providers/main-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,14 +32,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen w-screen overflow-x-hidden`}
       >
-        <StoreProvider>
-          <ProtectedRoute>
-            <div className="h-full min-h-screen w-full relative">
-              {children}
-              <Toaster />
-            </div>
-          </ProtectedRoute>
-        </StoreProvider>
+        <Providers>
+          <div className="h-full min-h-screen w-full overflow-x-hidden relative">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
