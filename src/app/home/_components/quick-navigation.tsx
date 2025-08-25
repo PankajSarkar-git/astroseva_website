@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+
 // Quick Navigation Component
 const QuickNavigation = ({ onClick }: { onClick: (id: string) => void }) => {
   const quickNavItems = [
@@ -6,33 +8,42 @@ const QuickNavigation = ({ onClick }: { onClick: (id: string) => void }) => {
       title: "Horoscope",
       icon: "🔮",
       color: "border border-surface-highlight",
+      url: "/horoscope",
     },
     {
       id: "kundli",
       title: "Kundli",
       icon: "📊",
       color: "border border-surface-highlight",
+      url: "/kundli",
     },
     {
       id: "match-making",
       title: "Match Making",
       icon: "💕",
       color: "border border-surface-highlight",
+      url: "/match-making",
     },
     {
       id: "tarot",
       title: "Tarot",
       icon: "🃏",
       color: "border border-surface-highlight",
+      url: "/tarot",
     },
   ];
+
+  const router = useRouter();
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-5 min-h-52 mb-8">
       {quickNavItems.map((item) => (
         <button
           key={item.id}
-          onClick={() => onClick(item.id)}
+          onClick={() => {
+            onClick(item.id);
+            router.push(item.url);
+          }}
           className={`${item.color} p-4 rounded-xl shadow-lg hover:scale-105 
                      transform transition-all duration-300 hover:shadow-xl cursor-pointer`}
         >
