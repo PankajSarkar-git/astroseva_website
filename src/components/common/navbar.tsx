@@ -15,7 +15,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAppDispatch } from "@/lib/hook/redux-hook";
+import { useAppDispatch, useAppSelector } from "@/lib/hook/redux-hook";
 import { logout } from "@/lib/store/reducer/auth";
 import { useUserRole } from "@/lib/hook/use-role";
 import {
@@ -37,6 +37,7 @@ const userData = {
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const {token} = useAppSelector(store=> store.auth)
 
   const pathname = usePathname();
   const router = useRouter();
@@ -51,7 +52,7 @@ const Navbar = () => {
       id: "home",
       label: "Home",
       icon: Home,
-      href: "/home",
+      href: "/",
       role: ["ASTROLOGER", "USER"],
     },
     {
@@ -156,7 +157,7 @@ const Navbar = () => {
                 );
               })}
             {/* Profile Dropdown & Mobile Menu Button */}
-            <div className="flex items-center space-x-4">
+            {token ? (<div className="flex items-center space-x-4">
               {/* Profile Dropdown */}
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
@@ -255,7 +256,9 @@ const Navbar = () => {
                   )}
                 </Button>
               </div>
-            </div>
+            </div>) : (
+              <Button onClick={()=> router.push('/login') } title="login" variant={'default'} className="bg-button-primary text-white hover:bg-button-secondary "> <LogOut className="w-5 h-5 mr-3" /> Login</Button>
+            )}
           </div>
 
           {/* Avatar & Menu (Mobile) */}

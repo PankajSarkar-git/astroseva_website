@@ -16,8 +16,6 @@ import { Eye, EyeOff, Phone, Lock, Loader2, Star } from "lucide-react";
 import { loginUserPassword } from "@/lib/store/reducer/auth";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/hook/redux-hook";
-import logo from "@/assets/imgs/logo.png";
-import Image from "next/image";
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -64,11 +62,7 @@ export default function LoginPage() {
       console.log(response, "----response");
       if (response.success) {
         console.log(response, "---login response");
-        // WebSocket.init(userId, websocketUrl)
-        //   .connect()
-        //   .then(() => console.log("Connected to WebSocket!"))
-        //   .catch((err) => console.error("WebSocket connection failed:", err));
-        router.push("/home");
+        router.push("/");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -89,11 +83,9 @@ export default function LoginPage() {
         {/* Logo/Brand Section */}
         <div className="text-center space-y-4">
           <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center">
-            <Image
-              src={logo}
+            <img
+              src={'../../../assets/imgs/logo.png'}
               alt="Logo"
-              width={200}
-              height={200}
               className="object-contain"
             />
           </div>
