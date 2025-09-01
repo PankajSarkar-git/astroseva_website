@@ -61,7 +61,7 @@ const Home = () => {
   >([]);
 
   const dispatch = useAppDispatch();
-    const router = useRouter()
+  const router = useRouter();
   // Simulate loading states
   useEffect(() => {
     getBannerData();
@@ -155,26 +155,20 @@ const Home = () => {
   return (
     <div className="min-h-screen pt-16 bg-gradient-to-br from-orange-50 via-purple-50 to-blue-50">
       {/* Header with Search */}
-      <div className="bg-surface-primary-surface py-12">
+      <div className="bg-gradient-to-b from-red-100 to-white py-8">
         <div className="container mx-auto max-w-[600px] px-4 flex gap-4">
           <Input
-            className="bg-white rounded-full h-10"
-            leftIcon={<SearchIcon className="h-4 w-4" />}
+            className="bg-white rounded-full h-12 border border-surface-highlight focus:border-orange-400 focus:ring-0 flex-grow"
+            leftIcon={<SearchIcon className="h-4 w-4 text-surface-highlight" />}
             value={search}
             onChange={handleSearchChange}
             placeholder="Search here for pandits"
           />
-          <Button
-            className="h-10 rounded-full bg-white text-black border border-white cursor-pointer hover:bg-white hover:border-surface-primary-surface"
-            onClick={handleSearchSubmit}
-          >
-            Search
-          </Button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 md:px-12 py-8 space-y-12">
+      <div className="bg-white mx-auto px-4 md:px-12 py-4 space-y-6">
         {/* Quick Navigation */}
         <section>
           <QuickNavigation onClick={handleQuickNavigation} />
@@ -259,7 +253,7 @@ const Home = () => {
 
         {/* Top Astrologers */}
         <section>
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-4">
             Top Astrologers
           </h2>
           {loading.astrologer ? (
@@ -279,20 +273,20 @@ const Home = () => {
       </div>
 
       {/* Fixed Action Buttons */}
-      <div className="fixed bottom-6 left-6 right-6 flex flex-col sm:flex-row gap-3 sm:justify-between pointer-events-none">
+      <div className="fixed bottom-6 left-6 right-6 flex flex-row gap-3 sm:justify-between pointer-events-none">
         <button
           onClick={handleCallNow}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full 
+          className="bg-button-warning hover:bg-button-warning/70 text-white px-6 py-3 rounded-full 
                shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
                flex items-center justify-center space-x-2 pointer-events-auto w-full sm:w-auto"
         >
-          <Phone className="w-5 h-5" />
-          <span className="font-semibold">Call Now</span>
+          <Phone className="w-5 h-5 text-black" />
+          <span className="font-semibold text-black">Call Now</span>
         </button>
 
         <button
           onClick={handleChatNow}
-          className="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-full 
+          className="bg-button-success hover:bg-button-success/70 text-white px-6 py-3 rounded-full 
                shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 
                flex items-center justify-center space-x-2 pointer-events-auto w-full sm:w-auto"
         >
