@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { makeResponsiveSVG } from "@/lib/utils/utils";
 
 export default function AkshvedanshaChart({
   forModal = false,
@@ -24,8 +25,9 @@ export default function AkshvedanshaChart({
   const [changeKundliOpen, setChangeKundliOpen] = useState(false);
   const { kundliPerson } = useAppSelector((state) => state.kundli);
   const [chartSvg, setChartSvg] = useState<string | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation(); // ✅ include i18n
   const [loading, setLoading] = useState(false);
+// console.log(,"hello");
 
   const tags = [
     { label: "Retrograde", symbol: "⭒" },
@@ -42,7 +44,7 @@ export default function AkshvedanshaChart({
   ];
 
   const [selectedKundliType, setSelectedKundliType] = useState(
-    t("lan") === "bn"
+    i18n.language === "bn"
       ? { label: "East-Indian Style", id: "east_indian_style", value: "east" }
       : { label: "North-Indian Style", id: "north_indian_style", value: "north" }
   );
@@ -65,14 +67,12 @@ export default function AkshvedanshaChart({
           query: {
             chartType: "D45",
             chartStyle: selectedKundliType.value,
-            lan: t("lan"),
+            lan: i18n.language, // ✅ FIXED: use active language
           },
         })
       ).unwrap();
 
-      if (payload) {
-        setChartSvg(payload);
-      }
+      if (payload) setChartSvg(payload);
     } catch (err) {
       toast.error("Failed to fetch chart");
     } finally {
@@ -126,7 +126,7 @@ export default function AkshvedanshaChart({
           <div
             className="w-[500px] h-[500px]"
             dangerouslySetInnerHTML={{
-              __html: chartSvg,
+              __html: makeResponsiveSVG(chartSvg, "600px", "90vh", true),
             }}
           />
         ) : (
@@ -201,3 +201,4 @@ export default function AkshvedanshaChart({
     </div>
   );
 }
+  

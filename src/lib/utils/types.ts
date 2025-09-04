@@ -256,3 +256,13 @@ export interface CreateAstrologerThunkInput {
 export interface EditAstrologerThunkInput extends CreateAstrologerThunkInput {
   id: string;
 }
+
+export interface UserPersonalDetail {
+  name: string;
+  gender: string;
+  birthDate: string;
+  birthTime: string;
+  birthPlace: string;
+  latitude: number | null;
+  longitude: number | null;
+}
