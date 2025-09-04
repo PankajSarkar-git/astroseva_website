@@ -22,21 +22,21 @@ export default function ProtectedRoute({
 }: {
   children: React.ReactNode;
 }) {
-  const { token } = useAppSelector((state) => state.auth);
+  const { token, isAuthenticated, user } = useAppSelector(
+    (state) => state.auth
+  );
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  const role = useUserRole(); // ✅ top-level hook call only
-  useQueueCountOnResume(isAuthenticated, role); // ✅ call unconditionally
-
-  useSessionEvents(user.id, isAuthenticated);
+  const role = useUserRole();
+  useQueueCountOnResume(isAuthenticated, role);
+  useSessionEvents(user?.id, isAuthenticated);
 
   const websocketUrl = "https://backend.astrosevaa.com/ws-chat";
 
-  // STEP 1: Check authentication
+  // STEP 1: Check authentication once token changes
   useEffect(() => {
     const checkAuth = async () => {
       if (!token) {
@@ -77,22 +77,22 @@ export default function ProtectedRoute({
         console.error(err);
         dispatch(logout());
       } finally {
-        setLoading(false);
+        setLoading(false); // ✅ mark auth check complete
       }
     };
 
     checkAuth();
-  }, [token]);
+  }, [token, dispatch]);
 
-  // STEP 2: Initialize WebSocket when user is authenticated
+  // STEP 2: Initialize WebSocket
   useEffect(() => {
-    if (user && user.id) {
+    if (isAuthenticated && user?.id) {
       const socket = WebSocket.init(user.id, websocketUrl);
-      socket.connect(); // initiate connection
+      socket.connect();
     }
-  }, [user?.id]);
+  }, [isAuthenticated, user?.id]);
 
-  // STEP 3: Redirect if not authenticated
+  // STEP 3: Redirect only AFTER loading is false
   useEffect(() => {
     if (!loading && !isAuthenticated && !PUBLIC_ROUTES.includes(pathname)) {
       router.replace("/login");
