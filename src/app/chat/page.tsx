@@ -25,10 +25,9 @@ import { decodeMessageBody } from "@/lib/utils/utils";
 import { StompSubscription } from "@stomp/stompjs";
 
 // Chat component converted from React Native
-const ChatView = () => {
+const ChatView = ({ session }: { session: any }) => {
   const role = useUserRole();
   const userId = useAppSelector((state) => state.auth.user.id);
-  const session = useAppSelector((state) => state?.session?.session);
 
   const tempOtherUser = useAppSelector((state) => state.session.otherUser);
   const otherUser =
@@ -600,6 +599,7 @@ const ChatHistory: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const { isWaiting, session } = useAppSelector((state) => state.session);
+
   const role = useUserRole();
 
   const dispatch = useAppDispatch();
@@ -668,7 +668,7 @@ const ChatHistory: React.FC = () => {
             onClick={() => handleChatSelect(item)}
             className={`cursor-pointer transition-all duration-200 rounded-lg ${
               isSelected
-                ? "bg-blue-50 border-l-4 border-l-blue-500"
+                ? "bg-blue-50 border-l-4 border-l-border-secondary"
                 : "hover:bg-gray-50"
             }`}
           >
@@ -731,7 +731,7 @@ const ChatHistory: React.FC = () => {
             {messageItems.length === 0 && initialLoadDone ? (
               <NoChatsState />
             ) : session ? (
-              <ChatView />
+              <ChatView session={session} />
             ) : (
               <EmptyState />
             )}

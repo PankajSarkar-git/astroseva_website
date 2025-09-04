@@ -246,41 +246,46 @@ const Astrologers: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex-1 pt-8">
-      <div className="pt-18 pb-6">
-        <div className="h-12 w-full bg-secondary-surface absolute top-0 rounded-b-2xl"></div>
-        <div className="container mx-auto max-w-[600px] px-4 flex gap-4">
-          <Input
-            className="bg-white rounded-full h-10"
-            leftIcon={<SearchIcon className="h-4 w-4" />}
-            value={search ?? ""}
-            onChange={(e) => {
-              const value = e.target.value;
-              setSearch(value); // Update query string
-              const params = new URLSearchParams(window.location.search);
-              if (value) {
-                params.set("search", value);
-              } else {
-                params.delete("search");
-              }
+    <div className="h-full flex-1">
+      <div className="sticky top-0 z-10 bg-white">
+        <div className="pt-24 pb-6 ">
+          <div className="h-[130px] md:hidden w-full bg-red-100 rounded-b-3xl absolute top-0"></div>
+          <div className="container mx-auto max-w-[600px] px-4 flex flex-col gap-4">
+            <Input
+              className="bg-white rounded-full h-12 border-text-pink"
+              leftIcon={<SearchIcon className="h-4 w-4" />}
+              value={search ?? ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearch(value); // Update query string
+                const params = new URLSearchParams(window.location.search);
+                if (value) {
+                  params.set("search", value);
+                } else {
+                  params.delete("search");
+                }
 
-              // Push new URL with updated query
-              router.push(`?${params.toString()}`);
-            }}
-            placeholder="Search here for pandits"
+                // Push new URL with updated query
+                router.push(`?${params.toString()}`);
+              }}
+              placeholder="Search here for pandits"
+            />
+            <div className="w-full h-0.5 bg-text-pink"></div>
+          </div>
+        </div>
+
+        <div className="px-2 mb-4">
+          <TagSelector
+            tags={tags}
+            selectedTags={selected}
+            onChange={(tags) => setSelected(tags)}
+            removable={false}
+            multiSelect={false}
           />
         </div>
       </div>
 
-      <TagSelector
-        tags={tags}
-        selectedTags={selected}
-        onChange={(tags) => setSelected(tags)}
-        removable={false}
-        multiSelect={false}
-      />
-
-      <div className="flex-1 pb-5 max-w-[1200px] mx-auto">
+      <div className="flex-1 pb-5 max-w-[1200px] mx-auto overflow-y-auto">
         {sortedAstrologers.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
             {sortedAstrologers.map((item, idx) => (
@@ -292,7 +297,7 @@ const Astrologers: React.FC = () => {
                 }
                 key={`card-astrologer-${item.id}`}
                 onClick={() => handleAstrologerClick(item.id)}
-                className="mx-2.5 cursor-pointer"
+                className="cursor-pointer"
               >
                 <AstrologerCard
                   id={item.id}
