@@ -94,9 +94,9 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
 
   return (
     <Card
-      className={`w-full h-full shadow-lg hover:shadow-xl transition-shadow duration-300 ${className}`}
+      className={`w-full h-full py-2 shadow-lg hover:shadow-xl transition-shadow duration-300 ${className}`}
     >
-      <CardContent className="p-4 flex flex-col justify-between flex-1">
+      <CardContent className="p-0 px-2 flex flex-col justify-between flex-1">
         {/* Top Section - Avatar and Name */}
         <div>
           <div className="flex items-start space-x-3 mb-4">
@@ -162,7 +162,7 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center flex-wrap justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Voice Call Button */}
           <Button
             variant="outline"
@@ -171,12 +171,12 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
               router.push("/applink");
               e.stopPropagation();
             }}
-            className="flex-1 h-10 flex items-center justify-center space-x-2 py-2 px-3 rounded-full border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors"
+            className="flex-1 h-10 flex items-center justify-center space-x-1 py-2 px-3 rounded-full border-text-pink hover:border-surface-primary-surface hover:bg-gray-50 transition-colors"
           >
-            <div className="p-1 bg-gray-800 rounded-full">
+            <div className="p-1 bg-surface-primary-surface rounded-full">
               <Phone className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xs font-semibold text-gray-900 truncate">
+            <span className="text-xs font-bold text-gray-900 truncate">
               {formatPrice
                 ? formatPrice(pricePerMinuteVoice, "min")
                 : `₹${pricePerMinuteVoice}/min`}
@@ -191,12 +191,12 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
               router.push("/applink");
               e.stopPropagation();
             }}
-            className="flex-1 h-10 flex items-center justify-center space-x-2 py-2 px-3 rounded-full border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors"
+            className="flex-1 h-10 flex items-center justify-center space-x-1 py-2 px-3 rounded-full border-text-pink hover:border-surface-primary-surface hover:bg-gray-50 transition-colors"
           >
-            <div className="p-1 bg-gray-800 rounded-full">
+            <div className="p-1 bg-surface-primary-surface rounded-full">
               <Video className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xs font-semibold text-gray-900 truncate">
+            <span className="text-xs font-bold text-gray-900 truncate">
               {formatPrice
                 ? formatPrice(pricePerMinuteVideo, "min")
                 : `₹${pricePerMinuteVideo}/min`}
@@ -211,15 +211,17 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
               handleSessionPress("chat");
               e.stopPropagation();
             }}
-            className={`flex-1 h-10 flex items-center justify-center space-x-2 py-2 px-3 rounded-full transition-colors ${
+            className={`flex-1 h-10 flex items-center justify-center space-x-1 py-2 px-2 rounded-full transition-colors ${
               freeChatAvailable
                 ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                : "border-text-pink hover:border-surface-primary-surface hover:bg-gray-50"
             }`}
           >
             <div
               className={`p-1 rounded-full ${
-                freeChatAvailable ? "bg-white" : "bg-gray-800"
+                freeChatAvailable
+                  ? "bg-surface-background"
+                  : "bg-surface-primary-surface"
               }`}
             >
               <MessageSquare
@@ -229,15 +231,15 @@ const AstrologerCard: React.FC<AstrologerCardProps> = ({
               />
             </div>
             <span
-              className={`text-xs font-semibold truncate ${
+              className={`text-xs font-bold truncate ${
                 freeChatAvailable ? "text-white" : "text-gray-900"
               }`}
             >
               {freeChatAvailable
                 ? "Free Chat"
                 : formatPrice
-                ? formatPrice(pricePerMinuteChat, "min")
-                : `₹${pricePerMinuteChat}/min`}
+                  ? formatPrice(pricePerMinuteChat, "min")
+                  : `₹${pricePerMinuteChat}/min`}
             </span>
           </Button>
         </div>

@@ -25,6 +25,7 @@ import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { getAllAstrologers } from "@/lib/store/reducer/astrologers";
 import { Astrologers } from "@/lib/utils/types";
 import { getBanner } from "@/lib/store/reducer/general";
+import SmallAstrologerCard from "./small-astrologer-card";
 // Shimmer/Skeleton component
 const SkeletonItem = ({ className = "" }) => (
   <div
@@ -263,9 +264,12 @@ const Home = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-5 mb-20">
               {astrologersData.map((astrologer) => (
-                <AstrologerCard key={astrologer.id} astrologer={astrologer} />
+                <SmallAstrologerCard
+                  key={astrologer.id}
+                  astrologer={astrologer}
+                />
               ))}
             </div>
           )}

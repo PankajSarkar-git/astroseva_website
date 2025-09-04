@@ -40,7 +40,7 @@ const sessionSlice = createSlice({
     setIsWaiting(state, action: PayloadAction<boolean>) {
       state.isWaiting = action.payload;
     },
-    setSession(state, action: PayloadAction<ChatSession>) {
+    setSession(state, action: PayloadAction<ChatSession | null>) {
       state.session = action.payload;
     },
     setActiveSession(state, action: PayloadAction<ChatSession>) {
