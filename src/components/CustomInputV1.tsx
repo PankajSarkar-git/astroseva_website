@@ -61,7 +61,7 @@ const CustomInputV1: React.FC<CustomInputV1Props> = ({
         <Input
           value={value}
           onChange={onChange}
-          type={secureText ? "password" : type}
+          type={secureText ? type : "text"}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           className={cn(

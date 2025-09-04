@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { makeResponsiveSVG } from "@/lib/utils/utils";
 
 export default function NavamshaChart({
   forModal = false,
@@ -24,17 +25,13 @@ export default function NavamshaChart({
   const [changeKundliOpen, setChangeKundliOpen] = useState(false);
   const { kundliPerson } = useAppSelector((state) => state.kundli);
   const [chartSvg, setChartSvg] = useState<string | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation(); // ✅ access i18n
   const [loading, setLoading] = useState(false);
 
   const [selectedKundliType, setSelectedKundliType] = useState(
-    t("lan") === "bn"
+    i18n.language === "bn"
       ? { label: "East-Indian Style", id: "east_indian_style", value: "east" }
-      : {
-          label: "North-Indian Style",
-          id: "north_indian_style",
-          value: "north",
-        }
+      : { label: "North-Indian Style", id: "north_indian_style", value: "north" }
   );
 
   const dispatch = useAppDispatch();
@@ -42,6 +39,7 @@ export default function NavamshaChart({
   const getKundliChartData = async () => {
     try {
       setLoading(true);
+
       const body = {
         ...kundliPerson,
         birthPlace: "Varanasi",
@@ -55,14 +53,12 @@ export default function NavamshaChart({
           query: {
             chartType: "D9",
             chartStyle: selectedKundliType.value,
-            lan: t("lan"),
+            lan: i18n.language, // ✅ use active language
           },
         })
       ).unwrap();
 
-      if (payload) {
-        setChartSvg(payload);
-      }
+      if (payload) setChartSvg(payload);
     } catch (err) {
       toast.error("Failed to fetch chart");
     } finally {
@@ -70,6 +66,7 @@ export default function NavamshaChart({
     }
   };
 
+  // handle resize
   useEffect(() => {
     if (!chartWidth) {
       const handleResize = () => setWidth(window.innerWidth);
@@ -78,11 +75,12 @@ export default function NavamshaChart({
     }
   }, [chartWidth]);
 
+  // fetch chart when active + dependencies change
   useEffect(() => {
     if (active === 1) {
       getKundliChartData();
     }
-  }, [dispatch, kundliPerson, selectedKundliType, active]);
+  }, [dispatch, kundliPerson, selectedKundliType, active, i18n.language]); // ✅ re-fetch when language changes
 
   if (loading) {
     return (
@@ -116,7 +114,7 @@ export default function NavamshaChart({
           <div
             className="w-[500px] h-[500px]"
             dangerouslySetInnerHTML={{
-              __html: chartSvg,
+              __html: makeResponsiveSVG(chartSvg, "600px", "90vh", true),
             }}
           />
         ) : (
@@ -135,16 +133,8 @@ export default function NavamshaChart({
           <h2 className="text-lg font-semibold mb-4">Change Kundli Type</h2>
           <div className="space-y-3">
             {[
-              {
-                label: "North-Indian Style",
-                id: "north_indian_style",
-                value: "north",
-              },
-              {
-                label: "East-Indian Style",
-                id: "east_indian_style",
-                value: "east",
-              },
+              { label: "North-Indian Style", id: "north_indian_style", value: "north" },
+              { label: "East-Indian Style", id: "east_indian_style", value: "east" },
             ].map((option) => (
               <motion.button
                 key={option.value}

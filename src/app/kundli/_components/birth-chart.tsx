@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { makeResponsiveSVG } from "@/lib/utils/utils";
 
 type KundliType = {
   label: string;
@@ -30,17 +31,14 @@ export default function BirthChart({
   const [changeKundliOpen, setChangeKundliOpen] = useState(false);
   const { kundliPerson } = useAppSelector((state) => state.kundli);
   const [chartSvg, setChartSvg] = useState<string | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation(); // 👈 get i18n instance
   const [loading, setLoading] = useState(false);
 
+  // ✅ Use i18n.language, not t("lan")
   const [selectedKundliType, setSelectedKundliType] = useState<KundliType>(
-    t("lan") === "bn"
+    i18n.language === "bn"
       ? { label: "East-Indian Style", id: "east_indian_style", value: "east" }
-      : {
-          label: "North-Indian Style",
-          id: "north_indian_style",
-          value: "north",
-        }
+      : { label: "North-Indian Style", id: "north_indian_style", value: "north" }
   );
 
   const dispatch = useAppDispatch();
@@ -61,7 +59,7 @@ export default function BirthChart({
           query: {
             chartType: "D1",
             chartStyle: selectedKundliType.value,
-            lan: t("bn"),
+            lan: i18n.language, // ✅ send current language code dynamically
           },
         })
       ).unwrap();
@@ -76,7 +74,7 @@ export default function BirthChart({
 
   useEffect(() => {
     if (active === 0) getKundliChartData();
-  }, [dispatch, kundliPerson, selectedKundliType, active]);
+  }, [dispatch, kundliPerson, selectedKundliType, active, i18n.language]); // 👈 also re-run when language changes
 
   if (loading) {
     return (
@@ -105,12 +103,16 @@ export default function BirthChart({
       </div>
 
       {/* Chart display */}
-      <div className="flex justify-center items-center w-full  p-4">
+      <div className="flex justify-center items-center w-full p-4">
         {chartSvg ? (
-          <div
-            className="w-full h-full max-w-[1200px] max-h-[90vh] flex justify-center items-center"
-            dangerouslySetInnerHTML={{ __html: chartSvg }}
-          />
+          <div className="w-full max-w-[1200px] overflow-auto">
+            <div
+              className="w-full h-auto flex justify-center items-center"
+              dangerouslySetInnerHTML={{
+                __html: makeResponsiveSVG(chartSvg, "600px", "90vh", true),
+              }}
+            />
+          </div>
         ) : (
           <p className="text-gray-500">No Kundli to show</p>
         )}
@@ -127,16 +129,8 @@ export default function BirthChart({
           <h2 className="text-lg font-semibold mb-4">Change Kundli Type</h2>
           <div className="space-y-3">
             {[
-              {
-                label: "North-Indian Style",
-                id: "north_indian_style",
-                value: "north",
-              },
-              {
-                label: "East-Indian Style",
-                id: "east_indian_style",
-                value: "east",
-              },
+              { label: "North-Indian Style", id: "north_indian_style", value: "north" },
+              { label: "East-Indian Style", id: "east_indian_style", value: "east" },
             ].map((option) => (
               <motion.button
                 key={option.value}

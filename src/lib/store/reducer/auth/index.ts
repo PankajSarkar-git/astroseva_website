@@ -1,11 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {
   loginUser,
   loginUserPassword,
+  logoutDevice,
+  onlineStatus,
+  registerDevice,
   registerUser,
   verifyOtp,
-} from "./action";
-import { UserDetail } from "../../../utils/types";
+} from './action';
+import {UserDetail} from '../../../utils/types';
 const isProfileComplete = (user: UserDetail): boolean => {
   return Boolean(
     user.name &&
@@ -14,7 +17,7 @@ const isProfileComplete = (user: UserDetail): boolean => {
       user.birthTime &&
       user.birthPlace &&
       user.latitude &&
-      user.longitude
+      user.longitude,
   );
 };
 interface AuthState {
@@ -43,43 +46,49 @@ export interface AstrologerProfile {
   pricePerMinuteChat: number;
   pricePerMinuteVoice: number;
   pricePerMinuteVideo: number;
+  isAudioOnline: boolean;
+  isVideoOnline: boolean;
+  isChatOnline: boolean;
 }
 
 const initialState: AuthState = {
-  name: "",
+  name: '',
   isAuthenticated: false,
   astrologer_detail: {
-    id: "",
+    id: '',
     about: null,
     blocked: false,
     experienceYears: 0,
-    expertise: "",
-    imgUri: "",
-    languages: "",
+    expertise: '',
+    imgUri: '',
+    languages: '',
     pricePerMinuteChat: 0,
     pricePerMinuteVoice: 0,
     pricePerMinuteVideo: 0,
+    isAudioOnline: false,
+    isChatOnline: false,
+    isVideoOnline: false,
   },
   token: null,
   mobile: null,
   firstTime: true,
   freeChatModalShown: false,
-  otp: "",
+  otp: '',
   user: {
-    id: "",
-    name: "",
-    gender: "MALE",
-    birthDate: new Date().toISOString().split("T")[0], // e.g., "2025-06-21"
-    birthTime: new Date().toTimeString().split(" ")[0], // e.g., "13:42:42"
-    birthPlace: "",
+    id: '',
+    name: '',
+    gender: 'MALE',
+    birthDate: new Date().toISOString().split('T')[0], // e.g., "2025-06-21"
+    birthTime: new Date().toTimeString().split(' ')[0], // e.g., "13:42:42"
+    birthPlace: '',
     latitude: 0,
     longitude: 0,
-    mobile: "",
-    role: "USER",
+    mobile: '',
+    role: 'USER',
     walletBalance: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    imgUri: "",
+    imgUri: '',
     freeChatUsed: false,
   },
   isProfileComplete: false,
@@ -87,7 +96,7 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     logout(state) {
@@ -105,11 +114,11 @@ const authSlice = createSlice({
     setFreeChatUsed(state) {
       state.user.freeChatUsed = true;
     },
-    setFreeChatModalShown: (state) => {
+    setFreeChatModalShown: state => {
       state.freeChatModalShown = true;
     },
     setUser(state, action) {
-      state.user = { ...action.payload };
+      state.user = {...action.payload};
       state.isProfileComplete = isProfileComplete(action.payload);
     },
     setProfileModelToggle(state) {
@@ -120,38 +129,62 @@ const authSlice = createSlice({
       }
     },
     setAstrologer(state, action) {
-      state.astrologer_detail = { ...action.payload };
+      state.astrologer_detail = {...action.payload};
     },
     setAuthentication(state, action) {
       state.isAuthenticated = action.payload;
     },
+    setOnline(
+      state,
+      action: PayloadAction<{
+        type: 'VIDEOONLINE' | 'CHATONLINE' | 'AUDIOONLINE';
+        value: boolean;
+      }>,
+    ) {
+      if (!state.astrologer_detail) return;
+
+      switch (action.payload.type) {
+        case 'VIDEOONLINE':
+          state.astrologer_detail.isVideoOnline = action.payload.value;
+          break;
+        case 'CHATONLINE':
+          state.astrologer_detail.isChatOnline = action.payload.value;
+          break;
+        case 'AUDIOONLINE':
+          state.astrologer_detail.isAudioOnline = action.payload.value;
+          break;
+      }
+    },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(loginUser.fulfilled, (state, { payload }) => {
+      .addCase(loginUser.fulfilled, (state, {payload}) => {
         if (payload?.success) {
           state.otp = payload.otp;
         }
       })
-      .addCase(verifyOtp.fulfilled, (state, { payload }) => {
+      .addCase(verifyOtp.fulfilled, (state, {payload}) => {
         if (payload?.success) {
           state.token = payload.token;
           state.mobile = payload?.user?.mobile;
-          state.user = { ...payload?.user };
+          state.user = {...payload?.user};
           state.name = payload?.user?.name;
           state.isProfileComplete = isProfileComplete(payload.user);
         }
       })
-      .addCase(loginUserPassword.fulfilled, (state, { payload }) => {
+      .addCase(loginUserPassword.fulfilled, (state, {payload}) => {
         if (payload?.success) {
           state.token = payload.token;
           state.mobile = payload?.user?.mobile;
-          state.user = { ...payload?.user };
+          state.user = {...payload?.user};
           state.name = payload?.user?.name;
           state.isProfileComplete = isProfileComplete(payload.user);
         }
       })
-      .addCase(registerUser.fulfilled, (state, { payload }) => {});
+      .addCase(registerUser.fulfilled, (state, {payload}) => {})
+      .addCase(onlineStatus.fulfilled, (state, {payload}) => {})
+      .addCase(logoutDevice.fulfilled, (state, {payload}) => {})
+      .addCase(registerDevice.fulfilled, (state, {payload}) => {});
   },
 });
 
@@ -166,6 +199,7 @@ export const {
   setFreeChatModalShown,
   setBalance,
   setFreeChatUsed,
+  setOnline,
 } = authSlice.actions;
-export { loginUser, verifyOtp, loginUserPassword, registerUser };
+export {loginUser, verifyOtp, onlineStatus, registerDevice, logoutDevice};
 export default authSlice.reducer;

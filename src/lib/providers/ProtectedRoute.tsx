@@ -1,21 +1,21 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { WebSocket } from "../services/socket-service-new";
-import { useAppDispatch, useAppSelector } from "../hook/redux-hook";
-import { userDetail } from "../store/reducer/user";
 import {
   logout,
   setAstrologer,
   setAuthentication,
   setUser,
 } from "../store/reducer/auth";
+import { useAppDispatch, useAppSelector } from "../hook/redux-hook";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { WebSocket } from "../services/socket-service-new";
+import { userDetail } from "../store/reducer/user";
 import FullScreenLoader from "@/components/full-screen-loader";
 import { useSessionEvents } from "../hook/use-session-events";
 import { useQueueCountOnResume } from "../hook/use-queue-count";
 import { useUserRole } from "../hook/use-role";
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register","/"];
 
 export default function ProtectedRoute({
   children,

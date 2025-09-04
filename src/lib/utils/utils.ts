@@ -30,8 +30,8 @@ export function decodeMessageBody(message: any): string {
 
 export const makeResponsiveSVG = (
   svgContent: string,
-  width: number,
-  height: number,
+  maxWidth: number | string = "100%",
+  maxHeight: number | string = "100%",
   charttoadjust?: boolean
 ): string => {
   const viewBoxDefault = charttoadjust ? "0 0 363 363" : "0 0 360 360";
@@ -39,21 +39,23 @@ export const makeResponsiveSVG = (
   // Check if <svg> exists
   const hasSvgTag = svgContent.includes("<svg");
 
+  const styleAttr = `style="max-width:${maxWidth}; max-height:${maxHeight}; width:100%; height:auto;"`;
+
   if (!hasSvgTag) {
     // Wrap and inject responsive <svg> tag
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBoxDefault}" preserveAspectRatio="xMidYMid meet">
+    return `<svg xmlns="http://www.w3.org/2000/svg" ${styleAttr} viewBox="${viewBoxDefault}" preserveAspectRatio="xMidYMid meet">
       ${svgContent}
     </svg>`;
   }
 
-  // If SVG tag already exists, inject/replace width/height/viewBox/preserveAspectRatio
+  // If SVG tag already exists, inject/replace attributes
   return svgContent
     .replace(
       /<svg([^>]*)>/,
-      `<svg$1 width="${width}" height="${height}" viewBox="${viewBoxDefault}" preserveAspectRatio="xMidYMid meet">`
+      `<svg$1 ${styleAttr} viewBox="${viewBoxDefault}" preserveAspectRatio="xMidYMid meet">`
     )
-    .replace(/width="[^"]*"/, `width="${width}"`)
-    .replace(/height="[^"]*"/, `height="${height}"`);
+    .replace(/width="[^"]*"/, "")
+    .replace(/height="[^"]*"/, "");
 };
 
 export function formatRelativeDate(isoString: Date | string): string {
