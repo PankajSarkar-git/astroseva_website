@@ -7,7 +7,13 @@ import { setProfileModelToggle, setUser } from "@/lib/store/reducer/auth";
 import { postUserDetail } from "@/lib/store/reducer/user";
 import PersonalDetailModal from "./personal-detail-modal";
 
-function PageWithNav({ children }: { children: React.ReactNode }) {
+function PageWithNav({
+  children,
+  hideNav,
+}: {
+  children: React.ReactNode;
+  hideNav?: boolean;
+}) {
   const { isProfileModalOpen, isProfileComplete } = useAppSelector(
     (state) => state.auth
   );
@@ -30,9 +36,7 @@ function PageWithNav({ children }: { children: React.ReactNode }) {
   };
   return (
     <div className="h-full w-screen overflow-x-hidden">
-      <div className="fixed w-full top-0 z-[50]">
-        <Navbar />
-      </div>
+      {!hideNav && <Navbar />}
       <div>{children}</div>
       {!isProfileComplete && isProfileModalOpen && (
         <PersonalDetailModal

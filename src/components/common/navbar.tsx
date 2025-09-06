@@ -37,7 +37,7 @@ const userData = {
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const {token} = useAppSelector(store=> store.auth)
+  const { token } = useAppSelector((store) => store.auth);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -46,6 +46,8 @@ const Navbar = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  const pathToHideNav = ["/chat"];
 
   const navItems = [
     {
@@ -128,9 +130,13 @@ const Navbar = () => {
     };
   }, [isSidebarOpen]);
 
+  console.log(pathname, "-----path name");
+
   return (
     <>
-      <nav className="bg-gradient-to-b from-white to-red-100 sticky top-0 z-50">
+      <nav
+        className={`bg-gradient-to-b from-white to-red-100 fixed w-full top-0 z-50 ${pathToHideNav.includes(pathname) ? "hidden md:block" : "block"}`}
+      >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
           {/* Logo */}
           {/* <h1 className="text-2xl font-bold text-orange-600">Astroseva</h1> */}
@@ -156,107 +162,120 @@ const Navbar = () => {
                 );
               })}
             {/* Profile Dropdown & Mobile Menu Button */}
-            {token ? (<div className="flex items-center space-x-4">
-              {/* Profile Dropdown */}
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-orange-200 transition-all duration-200"
+            {token ? (
+              <div className="flex items-center space-x-4">
+                {/* Profile Dropdown */}
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-orange-200 transition-all duration-200"
+                    >
+                      <Avatar className="h-10 w-10 border-2 border-orange-200">
+                        <AvatarImage
+                          src={userData.avatar}
+                          alt={userData.name}
+                        />
+                        <AvatarFallback className="bg-gradient-to-r from-orange-400 to-purple-500 text-white font-semibold">
+                          {userData.name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-64 p-2"
+                    align="end"
+                    forceMount
                   >
-                    <Avatar className="h-10 w-10 border-2 border-orange-200">
-                      <AvatarImage src={userData.avatar} alt={userData.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-orange-400 to-purple-500 text-white font-semibold">
-                        {userData.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-64 p-2"
-                  align="end"
-                  forceMount
-                >
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-2 p-2">
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage
-                            src={userData.avatar}
-                            alt={userData.name}
-                          />
-                          <AvatarFallback className="bg-gradient-to-r from-orange-400 to-purple-500 text-white">
-                            {userData.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <p className="text-sm font-medium leading-none">
-                            {userData.name}
-                          </p>
-                          <p className="text-xs leading-none text-muted-foreground mt-1">
-                            {userData.email}
-                          </p>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-2 p-2">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage
+                              src={userData.avatar}
+                              alt={userData.name}
+                            />
+                            <AvatarFallback className="bg-gradient-to-r from-orange-400 to-purple-500 text-white">
+                              {userData.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col">
+                            <p className="text-sm font-medium leading-none">
+                              {userData.name}
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground mt-1">
+                              {userData.email}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
 
-                  {profileItems.map((item) => {
-                    const IconComponent = item.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={item.id}
-                        onClick={() => handleNav(item.href)}
-                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-orange-50 rounded-lg transition-colors duration-200"
-                      >
-                        <div className="flex items-center">
-                          <IconComponent className="w-4 h-4 mr-3 text-gray-600" />
-                          <span>{item.label}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
-                            {item.badge}
-                          </span>
-                        )}
-                      </DropdownMenuItem>
-                    );
-                  })}
+                    {profileItems.map((item) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={item.id}
+                          onClick={() => handleNav(item.href)}
+                          className="flex items-center justify-between p-3 cursor-pointer hover:bg-orange-50 rounded-lg transition-colors duration-200"
+                        >
+                          <div className="flex items-center">
+                            <IconComponent className="w-4 h-4 mr-3 text-gray-600" />
+                            <span>{item.label}</span>
+                          </div>
+                          {item.badge && (
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                              {item.badge}
+                            </span>
+                          )}
+                        </DropdownMenuItem>
+                      );
+                    })}
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="flex items-center p-3 cursor-pointer text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="flex items-center p-3 cursor-pointer text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    >
+                      <LogOut className="w-4 h-4 mr-3" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Mobile menu button */}
+                <div className="md:hidden">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleMobileMenu}
+                    className="text-gray-700 hover:text-orange-600 hover:bg-orange-50"
                   >
-                    <LogOut className="w-4 h-4 mr-3" />
-                    <span>Logout</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Mobile menu button */}
-              <div className="md:hidden">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleMobileMenu}
-                  className="text-gray-700 hover:text-orange-600 hover:bg-orange-50"
-                >
-                  {isMobileMenuOpen ? (
-                    <X className="h-6 w-6" />
-                  ) : (
-                    <Menu className="h-6 w-6" />
-                  )}
-                </Button>
+                    {isMobileMenuOpen ? (
+                      <X className="h-6 w-6" />
+                    ) : (
+                      <Menu className="h-6 w-6" />
+                    )}
+                  </Button>
+                </div>
               </div>
-            </div>) : (
-              <Button onClick={()=> router.push('/login') } title="login" variant={'default'} className="bg-button-primary text-white hover:bg-button-secondary "> <LogOut className="w-5 h-5 mr-3" /> Login</Button>
+            ) : (
+              <Button
+                onClick={() => router.push("/login")}
+                title="login"
+                variant={"default"}
+                className="bg-button-primary text-white hover:bg-button-secondary "
+              >
+                {" "}
+                <LogOut className="w-5 h-5 mr-3" /> Login
+              </Button>
             )}
           </div>
 

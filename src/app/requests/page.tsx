@@ -232,7 +232,6 @@ const RequestScreen = () => {
   //   const [requests, setRequests] = useState(mockRequests);
   const [isAnimating, setIsAnimating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [currentPage, setCurrentPage] = useState("requests");
   const [request, setRequest] = useState<RequestType[]>([]);
   const ws = WebSocket.get();
   const isConnected = ws?.isConnected();
@@ -240,10 +239,8 @@ const RequestScreen = () => {
   const router = useRouter();
   const astrologer_detail = useAppSelector((state) => state.auth.user);
   const { user } = useAppSelector((state) => state.auth);
-  const quequeRequestCount = useAppSelector(
-    (state) => state.session.queueRequestCount
-  );
-
+  const [initialLoad, setInitialLoad] = useState(false);
+  const { requests } = useAppSelector((state) => state.session);
   const getAllRequests = async () => {
     try {
       setRefreshing(true);
@@ -265,6 +262,7 @@ const RequestScreen = () => {
     } catch (err) {
     } finally {
       setRefreshing(false);
+      setInitialLoad(true);
     }
   };
 
@@ -367,13 +365,21 @@ const RequestScreen = () => {
   };
 
   useEffect(() => {
-    ws?.send(
-      "/app/session.active",
-      {},
-      JSON.stringify({ astrologerId: user?.id })
-    );
     getAllRequests();
-  }, [quequeRequestCount]);
+  }, []);
+
+  useEffect(() => {
+    if (ws) {
+      ws?.send(
+        "/app/session.active",
+        {},
+        JSON.stringify({ astrologerId: user?.id })
+      );
+    }
+    if (initialLoad) {
+      setRequest(requests);
+    }
+  }, [initialLoad, requests, isConnected]);
 
   return (
     <PageWithNav>

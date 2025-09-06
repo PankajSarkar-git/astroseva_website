@@ -31,6 +31,7 @@ const initialState: SessionState = {
   queueRequestCount: 0,
   countRefresh: true,
   sessionRequest: null,
+  requests: [],
 };
 
 const sessionSlice = createSlice({
@@ -38,6 +39,7 @@ const sessionSlice = createSlice({
   initialState,
   reducers: {
     setIsWaiting(state, action: PayloadAction<boolean>) {
+      console.log(action.payload, "----iswaiting");
       state.isWaiting = action.payload;
     },
     setSession(state, action: PayloadAction<ChatSession | null>) {
@@ -93,6 +95,9 @@ const sessionSlice = createSlice({
     toggleCountRefresh: (state) => {
       state.countRefresh = !state.countRefresh;
     },
+    setRequestList: (state, action) => {
+      state.requests = action.payload;
+    },
   },
 });
 
@@ -114,6 +119,7 @@ export const {
   toggleCountRefresh,
   setActiveSession,
   setIsWaiting,
+  setRequestList,
 } = sessionSlice.actions;
 
 export {
