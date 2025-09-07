@@ -22,7 +22,9 @@ import { de } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { set } from "date-fns";
+import KundliModal from "./kundli-modal";
 const ChatView = ({ session }: { session: any }) => {
+  const [kundliOpen, setKundliOpen] = useState(false);
   const role = useUserRole();
   const userId = useAppSelector((state) => state.auth.user.id);
   const router = useRouter();
@@ -78,7 +80,7 @@ const ChatView = ({ session }: { session: any }) => {
       ).unwrap();
       if (payload.success) {
         if (page === 1) {
-          dispatch(setMessage(payload.messages));
+          dispatch(setMessage(payload.messages.reverse()));
         } else {
           dispatch(prependMessages(payload.messages));
         }
@@ -517,6 +519,7 @@ const ChatView = ({ session }: { session: any }) => {
                   ? "bg-purple-500 hover:bg-purple-600 text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
+              onClick={() => setKundliOpen(true)}
             >
               <svg
                 className="w-5 h-5"
@@ -565,6 +568,9 @@ const ChatView = ({ session }: { session: any }) => {
             />
           </div>
         </div>
+      )}
+      {kundliOpen && (
+        <KundliModal isOpen={kundliOpen} onClose={() => setKundliOpen(false)} />
       )}
     </div>
   );
