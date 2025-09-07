@@ -51,7 +51,7 @@ const QuickNavigation = ({ onClick }: { onClick: (id: string) => void }) => {
             className={`${item.color} h-16 w-16 flex justify-center items-center rounded-full bg-surface-highlight shadow-lg hover:scale-105 
                      transform transition-all duration-300 hover:shadow-xl cursor-pointer`}
           >
-            <div className="text-4xl mb-2">{item.icon}</div>
+            <div className="text-4xl">{item.icon}</div>
           </button>
           <div className="text-sm font-semibold text-center">{item.title}</div>
         </div>

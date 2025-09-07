@@ -47,6 +47,9 @@ const Navbar = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  const pathToHideNav = ["/chat"];
+
   const { t } = useTranslation();
   const navItems = [
     {
@@ -129,9 +132,13 @@ const Navbar = () => {
     };
   }, [isSidebarOpen]);
 
+  console.log(pathname, "-----path name");
+
   return (
     <>
-      <nav className="bg-gradient-to-b from-white to-red-100 sticky top-0 z-50">
+      <nav
+        className={`bg-gradient-to-b from-white to-red-100 fixed w-full top-0 z-50 ${pathToHideNav.includes(pathname) ? "hidden md:block" : "block"}`}
+      >
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
           {/* Logo */}
           {/* <h1 className="text-2xl font-bold text-orange-600">Astroseva</h1> */}

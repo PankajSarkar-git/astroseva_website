@@ -8,6 +8,8 @@ import { WebSocket } from "../services/socket-service-new";
 import {
   setActiveSession,
   setCallSession,
+  setIsWaiting,
+  setRequestList,
   setSession,
   toggleCountRefresh,
 } from "../store/reducer/session";
@@ -68,6 +70,7 @@ export const useSessionEvents = (
     const onlineAstroDest = `/topic/online/astrologer`;
     const activeSessionDest = `/topic/session/${userId}`;
     const onlineAstrologerDest = "/topic/online/astrologer/list";
+    const requestListDest = `/topic/requests/${userId}`;
 
     subscriptionsRef.current = [
       queueDest,
@@ -77,6 +80,11 @@ export const useSessionEvents = (
       activeSessionDest,
       onlineAstrologerDest,
     ];
+
+    if (role === "ASTROLOGER") {
+      // subscriptionsRef.current.push(activeSessionDest);
+      subscriptionsRef.current.push(requestListDest);
+    }
 
     ws.subscribe(queueDest, (msg) => {
       try {
@@ -101,9 +109,12 @@ export const useSessionEvents = (
     ws.subscribe(requestDest, (msg) => {
       try {
         const data = JSON.parse(decodeMessageBody(msg));
+        console.log("Chat ID received:", data);
         dispatch(setActiveSession(data));
         dispatch(setSession(data));
+        dispatch(setIsWaiting(false));
         getTransactionDetails();
+
         showToast.info(
           role === "USER"
             ? "Request accepted by the astrologer"
@@ -140,6 +151,18 @@ export const useSessionEvents = (
         console.log("Failed to parse active session data:", err);
       }
     });
+
+    if (role === "ASTROLOGER") {
+      ws.subscribe(requestListDest, (msg) => {
+        try {
+          const data = JSON.parse(decodeMessageBody(msg));
+          console.log("Request---------------------------:", data);
+          dispatch(setRequestList(data));
+        } catch (err) {
+          console.log("Failed to parse online astrologer list:", err);
+        }
+      });
+    }
   }, [
     isAuthenticated,
     isConnected,
