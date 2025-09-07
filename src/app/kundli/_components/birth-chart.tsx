@@ -34,7 +34,7 @@ export default function BirthChart({
   const { t, i18n } = useTranslation(); // 👈 get i18n instance
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use i18n.language, not t("lan")
+
   const [selectedKundliType, setSelectedKundliType] = useState<KundliType>(
     i18n.language === "bn"
       ? { label: "East-Indian Style", id: "east_indian_style", value: "east" }
@@ -59,7 +59,7 @@ export default function BirthChart({
           query: {
             chartType: "D1",
             chartStyle: selectedKundliType.value,
-            lan: i18n.language, // ✅ send current language code dynamically
+            lan: i18n.language,
           },
         })
       ).unwrap();

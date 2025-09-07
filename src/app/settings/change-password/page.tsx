@@ -9,6 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { passwordReset } from "@/lib/store/reducer/settings";
 import { useAppDispatch } from "@/lib/hook/redux-hook";
 import { showToast } from "@/components/common/toast";
+import PageWithNav from "@/components/common/page-with-nav";
 
 type FormFields = "currentPassword" | "newPassword" | "confirmPassword";
 type PasswordField = "current" | "new" | "confirm";
@@ -122,6 +123,7 @@ const ChangePasswordPage = () => {
     placeholder: string,
     showPasswordField: PasswordField
   ) => (
+    <PageWithNav>
     <div className="mb-6">
       <Label className="mb-1">{label}</Label>
       <div className="relative">
@@ -191,6 +193,7 @@ const ChangePasswordPage = () => {
         </Button>
       </Card>
     </div>
+    </PageWithNav>
   );
 };
 

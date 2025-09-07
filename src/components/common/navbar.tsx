@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 
 const userData = {
   name: "John Doe",
@@ -49,6 +50,7 @@ const Navbar = () => {
 
   const pathToHideNav = ["/chat"];
 
+  const { t } = useTranslation();
   const navItems = [
     {
       id: "home",
@@ -114,13 +116,13 @@ const Navbar = () => {
 
   const handleNav = (href: string) => {
     router.push(href);
-    setIsSidebarOpen(false);
+    setIsSidebarOpen(!isMobileMenuOpen);
   };
 
   const handleLogout = () => {
     dispatch(logout());
     router.push("/login");
-    setIsSidebarOpen(false);
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   useEffect(() => {
@@ -141,7 +143,7 @@ const Navbar = () => {
           {/* Logo */}
           {/* <h1 className="text-2xl font-bold text-orange-600">Astroseva</h1> */}
           {/* Desktop Nav */}
-          <div className="hidden md:flex gap-4">
+          <div className="hidden md:flex md:justify-end w-full gap-4">
             {navItems
               .filter((item) => item.role.includes(role))
               .map((item) => {
@@ -284,7 +286,7 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsSidebarOpen(true)}
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               <Menu className="w-6 h-6" />
             </Button>
@@ -294,7 +296,7 @@ const Navbar = () => {
 
       {/* Sidebar Drawer (Mobile) */}
       <div
-        className={`fixed inset-0 z-40 transition-all duration-300 ${
+        className={`fixed inset-0 z-40 -mt-2.5 transition-all duration-300 ${
           isSidebarOpen ? "visible" : "invisible"
         }`}
       >
@@ -303,7 +305,7 @@ const Navbar = () => {
           className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
             isSidebarOpen ? "opacity-100" : "opacity-0"
           }`}
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         />
 
         {/* Sidebar */}
@@ -318,7 +320,7 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsSidebarOpen(false)}
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               <X className="w-5 h-5" />
             </Button>
@@ -342,7 +344,7 @@ const Navbar = () => {
                     }`}
                   >
                     <Icon className="w-5 h-5 mr-3" />
-                    {item.label}
+                    {t(item.label)}
                   </button>
                 );
               })}
@@ -371,7 +373,6 @@ const Navbar = () => {
                 );
               })}
           </div>
-
           {/* Logout */}
           <div className="border-t mt-4 p-4">
             <button

@@ -14,6 +14,7 @@ import FullScreenLoader from "@/components/full-screen-loader";
 import { useSessionEvents } from "../hook/use-session-events";
 import { useQueueCountOnResume } from "../hook/use-queue-count";
 import { useUserRole } from "../hook/use-role";
+import i18n from "../utils/i18n";
 
 const PUBLIC_ROUTES = ["/login", "/register","/"];
 
@@ -83,6 +84,14 @@ export default function ProtectedRoute({
 
     checkAuth();
   }, [token, dispatch]);
+
+  const language = useAppSelector((s) => s.setting.language);
+
+  useEffect(() => {
+    if (language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language]);
 
   // STEP 2: Initialize WebSocket
   useEffect(() => {
