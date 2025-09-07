@@ -53,7 +53,7 @@ export default function NavamshaChart({
           query: {
             chartType: "D9",
             chartStyle: selectedKundliType.value,
-            lan: i18n.language, // ✅ use active language
+            lan: i18n.language, 
           },
         })
       ).unwrap();
