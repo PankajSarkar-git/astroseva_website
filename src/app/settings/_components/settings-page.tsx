@@ -100,7 +100,7 @@ const SettingPage = () => {
   
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <div className="max-w-xl mx-auto p-6 mt-14">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Image
@@ -108,7 +108,7 @@ const SettingPage = () => {
           alt="profile"
           width={60}
           height={60}
-          className="rounded-full border border-gray-300"
+          className="rounded-full size-16 border border-gray-300"
         />
         <div className="flex-1 flex justify-between items-center">
           <div>

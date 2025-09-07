@@ -17,6 +17,7 @@ const LanguageSettingPage = () => {
   const selectedLanguage = useAppSelector((s) => s.setting.language ?? "bn");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  
 
   const handleSelectLanguage = (code: string) => {
     i18n.changeLanguage(code);
